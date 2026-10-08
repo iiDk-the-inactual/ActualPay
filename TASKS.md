@@ -275,7 +275,7 @@ mode), which CI already covers.
 
 ### 4. Probe the configured backends
 
-- [x] With `ENABLED_ASSETS=xrp` (default dev config): `npm run chain:probe`
+- [ ] With `ENABLED_ASSETS=xrp` (default dev config): `npm run chain:probe`
       prints `OK xrpl tip=… final=…` plus live reserve values, and exits 0.
 - [ ] Negative checks (restore afterwards):
   - Set `ETHEREUM_CHAIN_ID=1`, enable `eth` and point `ETHEREUM_RPC_URL` at
@@ -344,9 +344,9 @@ only. For each check, record in Findings: the transaction hash, what
 
 ### 6. Safety checks
 
-- [x] `npm run chain:watch -- --chain bitcoin --xpub <an xprv/tprv>` is
+- [ ] `npm run chain:watch -- --chain bitcoin --xpub <an xprv/tprv>` is
       refused with `extended PRIVATE key`. (Use a throwaway key generated for this test.)
-- [x] Against the regtest node, `getwalletinfo` on the ActualPay wallet shows
+- [ ] Against the regtest node, `getwalletinfo` on the ActualPay wallet shows
       `"private_keys_enabled": false`.
 - [ ] Search all CLI output from this phase for RPC passwords and API keys: none appear.
 
@@ -370,7 +370,7 @@ next phase starts from known-good ground.
 | ---- | ---- | ------- | ---------- | --- |
 | 2026-10-08 | Env | No Docker daemon in the cloud sandbox | Sandbox limitation | Ran native PostgreSQL 16 and redis-server 7.0 with the same credentials as docker-compose.yml. Valkey was not used. |
 | 2026-10-08 | Phase 1-3 | Not verifiable in the sandbox: Docker steps, interactive `admin:create` prompt (no TTY), real authenticator MFA, Anvil, regtest Bitcoin Core, XRPL/TRON/Sepolia/testnet4 live checks, `getwalletinfo` | No network access to testnets, Foundry or bitcoincore.org; no TTY | Left unticked. Run locally. |
-| 2026-10-08 | Phase 3 §6 | `chain:watch` queries node status before parsing `--xpub`, so an xprv is only refused once a node is reachable | CLI ordering in `apps/api/src/cli/chain-watch.ts` | Not changed. `parseExtendedPublicKey` itself refuses an xprv without echoing it (checked directly). |
+| 2026-10-08 | Phase 3 §6 | `chain:watch` queries node status before parsing `--xpub`, so an xprv is only refused once a node is reachable | CLI ordering in `apps/api/src/cli/chain-watch.ts` | Not changed. Checkbox left unticked (CLI path needs a node). `parseExtendedPublicKey` itself refuses an xprv without echoing it (checked directly). |
 
 ## Open questions
 
