@@ -1,0 +1,15 @@
+{
+  "name": "@actualpay/ledger",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@actualpay/database": "0.1.0",
+    "@actualpay/shared": "0.1.0",
+    "kysely": "^0.29.6"
+  }
+}

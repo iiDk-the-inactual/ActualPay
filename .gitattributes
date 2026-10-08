@@ -1,0 +1,5 @@
+# Force LF everywhere so shell scripts, SQL and Docker files work when the
+# repository is checked out on Windows.
+* text=auto eol=lf
+*.png binary
+*.jpg binary

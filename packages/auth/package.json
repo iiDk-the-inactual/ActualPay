@@ -1,0 +1,19 @@
+{
+  "name": "@actualpay/auth",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@actualpay/audit": "0.1.0",
+    "@actualpay/database": "0.1.0",
+    "@actualpay/email": "0.1.0",
+    "@actualpay/shared": "0.1.0",
+    "@node-rs/argon2": "^2.2.1",
+    "kysely": "^0.29.6",
+    "otpauth": "^9.5.2"
+  }
+}

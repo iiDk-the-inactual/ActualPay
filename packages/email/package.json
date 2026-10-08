@@ -1,0 +1,14 @@
+{
+  "name": "@actualpay/email",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@actualpay/shared": "0.1.0",
+    "nodemailer": "^10.0.15"
+  }
+}

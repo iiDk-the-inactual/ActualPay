@@ -1,0 +1,31 @@
+{
+  "name": "@actualpay/api",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@actualpay/audit": "0.1.0",
+    "@actualpay/auth": "0.1.0",
+    "@actualpay/chains": "0.1.0",
+    "@actualpay/config": "0.1.0",
+    "@actualpay/database": "0.1.0",
+    "@actualpay/email": "0.1.0",
+    "@actualpay/shared": "0.1.0",
+    "@fastify/cookie": "^11.1.2",
+    "@fastify/cors": "^11.3.0",
+    "@fastify/helmet": "^13.1.1",
+    "@fastify/rate-limit": "^11.2.0",
+    "fastify": "^5.12.5",
+    "ioredis": "^6.0.0",
+    "kysely": "^0.29.6",
+    "zod": "^3.25.76"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=../../.env --import tsx src/server.ts",
+    "dev": "node --env-file-if-exists=../../.env --watch --import tsx src/server.ts"
+  }
+}

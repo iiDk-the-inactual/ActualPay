@@ -1,0 +1,48 @@
+{
+  "name": "actualpay",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Self-hostable, multi-chain cryptocurrency payment processor.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run --project unit",
+    "test:integration": "node --env-file-if-exists=.env node_modules/vitest/vitest.mjs run --project integration",
+    "test:all": "node --env-file-if-exists=.env node_modules/vitest/vitest.mjs run",
+    "db:migrate": "node --env-file-if-exists=.env --import tsx packages/database/src/cli.ts migrate",
+    "db:status": "node --env-file-if-exists=.env --import tsx packages/database/src/cli.ts status",
+    "licenses:check": "node --import tsx scripts/check-licenses.ts",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run test:integration && npm run licenses:check",
+    "admin:create": "node --env-file-if-exists=.env --import tsx apps/api/src/cli/admin-create.ts",
+    "api:dev": "node --env-file-if-exists=.env --watch --import tsx apps/api/src/server.ts",
+    "api:start": "node --env-file-if-exists=.env --import tsx apps/api/src/server.ts",
+    "smoke:api": "node --import tsx scripts/smoke-api.ts",
+    "chain:probe": "node --env-file-if-exists=.env --import tsx apps/api/src/cli/chain-probe.ts",
+    "chain:watch": "node --env-file-if-exists=.env --import tsx apps/api/src/cli/chain-watch.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@scure/bip39": "^2.4.0",
+    "@types/node": "^22.20.5",
+    "@types/nodemailer": "^8.0.2",
+    "@types/pg": "^8.23.1",
+    "eslint": "^9.39.5",
+    "otpauth": "^9.5.2",
+    "prettier": "^3.9.9",
+    "tsx": "^4.23.15",
+    "typescript": "~5.8",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^3.2.7"
+  }
+}

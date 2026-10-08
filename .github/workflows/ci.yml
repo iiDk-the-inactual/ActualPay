@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: actualpay
+          POSTGRES_PASSWORD: actualpay-ci
+          POSTGRES_DB: actualpay_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U actualpay -d actualpay_test"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+      valkey:
+        image: valkey/valkey:8-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "valkey-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      TEST_REDIS_URL: redis://localhost:6379/15
+      EVM_TEST_RPC_URL: http://127.0.0.1:8545
+      UTXO_REGTEST_URL: http://ci:ci@127.0.0.1:19443
+      UTXO_REGTEST_CHAIN: litecoin
+      TEST_DATABASE_URL: postgres://actualpay:actualpay-ci@localhost:5432/actualpay_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install Foundry (anvil) for EVM integration tests
+        uses: foundry-rs/foundry-toolchain@v1
+      - name: Start anvil
+        run: |
+          anvil --port 8545 --chain-id 31337 > anvil.log 2>&1 &
+          sleep 2
+      - name: Start litecoind (regtest) for UTXO integration tests
+        run: |
+          curl -sSL -o ltc.tgz https://github.com/litecoin-project/litecoin/releases/download/v0.21.4/litecoin-0.21.4-x86_64-linux-gnu.tar.gz
+          echo "857fc41091f2bae65c3bf0fd4d388fca915fc93a03f16dd2578ac3cc92898390  ltc.tgz" | sha256sum -c -
+          tar xzf ltc.tgz
+          mkdir -p "$RUNNER_TEMP/ltc"
+          ./litecoin-0.21.4/bin/litecoind -regtest -daemon -datadir="$RUNNER_TEMP/ltc" -rpcuser=ci -rpcpassword=ci -rpcport=19443 -fallbackfee=0.0001
+          sleep 5
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run test:integration
+      - run: npm run licenses:check
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high

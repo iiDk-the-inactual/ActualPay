@@ -1,0 +1,41 @@
+# Local development services only. NOT a production deployment:
+# see docs/deployment.md (Phase 13) for that. Ports are bound to 127.0.0.1
+# so these databases are never exposed to your network.
+name: actualpay-dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: actualpay
+      POSTGRES_PASSWORD: actualpay-dev-only
+      POSTGRES_DB: actualpay_dev
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U actualpay -d actualpay_dev']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Valkey (BSD-3-Clause), a drop-in Redis-compatible server, is used instead
+  # of Redis >= 7.4 so the whole default stack stays under permissive licenses.
+  valkey:
+    image: valkey/valkey:8-alpine
+    command: ['valkey-server', '--requirepass', 'actualpay-dev-only', '--appendonly', 'yes']
+    ports:
+      - '127.0.0.1:6379:6379'
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ['CMD', 'valkey-cli', '-a', 'actualpay-dev-only', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  postgres-data:
+  valkey-data:

@@ -1,0 +1,16 @@
+{
+  "name": "@actualpay/database",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@actualpay/config": "0.1.0",
+    "@actualpay/shared": "0.1.0",
+    "kysely": "^0.29.6",
+    "pg": "^8.23.1"
+  }
+}
