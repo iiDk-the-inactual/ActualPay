@@ -48,23 +48,23 @@ Each phase appends a new section; earlier sections stay as regression checks.
 
 ### 2. Install dependencies
 
-- [ ] `npm ci` completes with no errors (uses the committed `package-lock.json`)
-- [ ] `npm audit --omit=dev` reports no high or critical vulnerabilities. If it does, record them under Findings; do not run `npm audit fix --force`.
+- [x] `npm ci` completes with no errors (uses the committed `package-lock.json`)
+- [x] `npm audit --omit=dev` reports no high or critical vulnerabilities. If it does, record them under Findings; do not run `npm audit fix --force`.
 
 ### 3. Create `.env`
 
-- [ ] Copy the template:
+- [x] Copy the template:
   - PowerShell: `Copy-Item .env.example .env`
   - bash: `cp .env.example .env`
-- [ ] Generate secrets (works on any OS without openssl):
+- [x] Generate secrets (works on any OS without openssl):
   - `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` → paste as `SESSION_SECRET`
   - `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` → paste as `ENCRYPTION_KEY`
-- [ ] Leave `APP_ENV=development`, `NETWORK_MODE=testnet`, `ENABLED_ASSETS=xrp`.
-- [ ] Confirm `.env` is git-ignored: `git check-ignore .env` prints `.env`.
-- [ ] Confirm the config loads:
+- [x] Leave `APP_ENV=development`, `NETWORK_MODE=testnet`, `ENABLED_ASSETS=xrp`.
+- [x] Confirm `.env` is git-ignored: `git check-ignore .env` prints `.env`.
+- [x] Confirm the config loads:
       `node --env-file=.env --import tsx -e "import('@actualpay/config').then(m => console.log(m.describeConfig(m.loadConfig())))"`
       Expected output: an object with `env: 'development'`, `enabledAssets: ['xrp']`, and **no passwords** anywhere in it.
-- [ ] Negative check: temporarily set `ENCRYPTION_KEY=short` and re-run the command above. It must fail with `ENCRYPTION_KEY: must be exactly 32 random bytes` and must **not** print the value `short`. Restore the real key afterwards.
+- [x] Negative check: temporarily set `ENCRYPTION_KEY=short` and re-run the command above. It must fail with `ENCRYPTION_KEY: must be exactly 32 random bytes` and must **not** print the value `short`. Restore the real key afterwards.
 
 ### 4. Start local services
 
@@ -78,17 +78,17 @@ Each phase appends a new section; earlier sections stay as regression checks.
 
 ### 5. Migrate the development database
 
-- [ ] `npm run db:status` lists every migration as `PENDING` and exits with code 1 (that is expected before the first migrate).
-- [ ] `npm run db:migrate` prints `applied:` for each migration (`0001_foundation` … the latest), then `Asset registry verified.`
-- [ ] Running `npm run db:migrate` again prints `Database is up to date.`
-- [ ] `npm run db:status` shows every migration as `applied` and exits with code 0.
-- [ ] Assets are seeded with the right decimals:
+- [x] `npm run db:status` lists every migration as `PENDING` and exits with code 1 (that is expected before the first migrate).
+- [x] `npm run db:migrate` prints `applied:` for each migration (`0001_foundation` … the latest), then `Asset registry verified.`
+- [x] Running `npm run db:migrate` again prints `Database is up to date.`
+- [x] `npm run db:status` shows every migration as `applied` and exits with code 0.
+- [x] Assets are seeded with the right decimals:
       `docker compose exec postgres psql -U actualpay -d actualpay_dev -c "SELECT id, chain, decimals, fee_asset_id FROM assets ORDER BY id;"`
       Expected: btc 8, eth 18, ltc 8, trx 6, usdt-erc20 6 (fee eth), usdt-trc20 6 (fee trx), xrp 6.
 
 ### 6. Full verification suite
 
-- [ ] `npm run verify` passes. It runs, in order:
+- [x] `npm run verify` passes. It runs, in order:
   - `format:check` (Prettier)
   - `lint` (type-aware ESLint)
   - `typecheck`
@@ -96,7 +96,7 @@ Each phase appends a new section; earlier sections stay as regression checks.
   - `test:integration`: all integration tests pass, against `actualpay_test`
   - (Exact counts for the current phase are listed in that phase's section.)
   - `licenses:check`: "All production dependency licenses are allowed."
-- [ ] Run the integration suite **three times in a row**: `npm run test:integration`. The concurrency tests must pass every time. Any flake is a real bug: record it.
+- [x] Run the integration suite **three times in a row**: `npm run test:integration`. The concurrency tests must pass every time. Any flake is a real bug: record it.
 
 ### 7. Manual database guarantees
 
@@ -104,11 +104,11 @@ Run each statement against the dev database
 (`docker compose exec postgres psql -U actualpay -d actualpay_dev`). Every
 one of them **must fail** with the error shown:
 
-- [ ] `UPDATE assets SET decimals = 2 WHERE id = 'btc';` → `protocol fields of asset btc are immutable`
-- [ ] `DELETE FROM assets WHERE id = 'btc';` → `table assets is append-only`
-- [ ] `TRUNCATE ledger_entries;` → `append-only`
-- [ ] `INSERT INTO ledger_journals (external_ref, kind, content_hash) VALUES ('manual:1', 'adjustment', repeat('a', 64));` → `has 0 entries; at least 2 required`
-- [ ] `INSERT INTO audit_log (actor_type, action) VALUES ('user', 'user.login.succeeded');` → violates `audit_log_actor`
+- [x] `UPDATE assets SET decimals = 2 WHERE id = 'btc';` → `protocol fields of asset btc are immutable`
+- [x] `DELETE FROM assets WHERE id = 'btc';` → `table assets is append-only`
+- [x] `TRUNCATE ledger_entries;` → `append-only`
+- [x] `INSERT INTO ledger_journals (external_ref, kind, content_hash) VALUES ('manual:1', 'adjustment', repeat('a', 64));` → `has 0 entries; at least 2 required`
+- [x] `INSERT INTO audit_log (actor_type, action) VALUES ('user', 'user.login.succeeded');` → violates `audit_log_actor`
 
 ### 8. CI
 
@@ -130,26 +130,26 @@ Prerequisite: Phase 1 sections above pass. Phase 2 adds migration
 
 ### 1. Update configuration
 
-- [ ] Compare `.env` with `.env.example` and add every key that is missing. New in Phase 2:
+- [x] Compare `.env` with `.env.example` and add every key that is missing. New in Phase 2:
       `API_HOST`, `API_PORT`, `CORS_ALLOWED_ORIGINS`, `SESSION_IDLE_MINUTES`,
       `SESSION_ABSOLUTE_HOURS`, `LOGIN_MAX_FAILURES`, `LOGIN_LOCK_MINUTES`,
       `RATE_LIMIT_AUTH_PER_MINUTE`, `RATE_LIMIT_API_PER_MINUTE`, `TEST_REDIS_URL`.
       The defaults in `.env.example` are correct for local development.
-- [ ] `TEST_REDIS_URL` ends in `/15`. The integration tests **flush** that logical database, and refuse to run against any other.
-- [ ] `npm ci` (new dependencies: fastify and plugins, `@node-rs/argon2`, `otpauth`, `ioredis`, `nodemailer`).
+- [x] `TEST_REDIS_URL` ends in `/15`. The integration tests **flush** that logical database, and refuse to run against any other.
+- [x] `npm ci` (new dependencies: fastify and plugins, `@node-rs/argon2`, `otpauth`, `ioredis`, `nodemailer`).
   - `@node-rs/argon2` ships prebuilt Windows binaries. If install fails with a node-gyp or native-module error, record the exact message under Findings; do **not** swap in a different hashing library.
 
 ### 2. Migrate
 
-- [ ] `npm run db:migrate` prints `applied: 0004_identity`.
-- [ ] `npm run db:status` shows 4 migrations, all `applied`.
+- [x] `npm run db:migrate` prints `applied: 0004_identity`.
+- [x] `npm run db:status` shows 4 migrations, all `applied`.
 
 ### 3. Full verification
 
 - [ ] `docker compose up -d` and both services are healthy (Valkey is now used by tests).
 - [ ] `npm run verify` passes with **63 unit tests** and **70 integration tests**.
   - `tests/integration/api-ratelimit.test.ts` must report **4 passed, 0 skipped**. If 2 are skipped, `TEST_REDIS_URL` is not set.
-- [ ] Run `npm run test:integration` three times in a row. All passes, no flakes.
+- [x] Run `npm run test:integration` three times in a row. All passes, no flakes.
 
 ### 4. Create the first administrator
 
@@ -158,12 +158,12 @@ Prerequisite: Phase 1 sections above pass. Phase 2 adds migration
 - [ ] Non-interactive path works too (use a different email):
   - PowerShell: `$env:ACTUALPAY_ADMIN_PASSWORD = 'a long test passphrase'; npm run admin:create -- --email second@example.com; Remove-Item Env:ACTUALPAY_ADMIN_PASSWORD`
   - bash: `ACTUALPAY_ADMIN_PASSWORD='a long test passphrase' npm run admin:create -- --email second@example.com`
-- [ ] Running the same command again fails with `A user with this email already exists.` and exit code 1.
+- [x] Running the same command again fails with `A user with this email already exists.` and exit code 1.
 
 ### 5. Run the API
 
-- [ ] In a separate terminal: `npm run api:dev`. The log shows `Server listening at http://127.0.0.1:3000` and contains no secrets (the config summary shows hosts only).
-- [ ] `curl.exe http://127.0.0.1:3000/health/ready` (PowerShell: use `curl.exe`, not the `curl` alias) returns `{"status":"ready","checks":{"database":"ok","redis":"ok"}}`.
+- [x] In a separate terminal: `npm run api:dev`. The log shows `Server listening at http://127.0.0.1:3000` and contains no secrets (the config summary shows hosts only).
+- [x] `curl.exe http://127.0.0.1:3000/health/ready` (PowerShell: use `curl.exe`, not the `curl` alias) returns `{"status":"ready","checks":{"database":"ok","redis":"ok"}}`.
 
 ### 6. Smoke test against the running API
 
@@ -172,7 +172,7 @@ Set the admin credentials for the script:
 - PowerShell: `$env:SMOKE_EMAIL = 'you@example.com'; $env:SMOKE_PASSWORD = '<your password>'`
 - bash: `export SMOKE_EMAIL=you@example.com SMOKE_PASSWORD='<your password>'`
 
-- [ ] `npm run smoke:api -- --rate-limit` ends with `All smoke checks passed.` (16 checks, including CSRF rejection, API key scope/revocation, audit log, logout, and a 429 from the auth rate limit).
+- [x] `npm run smoke:api -- --rate-limit` ends with `All smoke checks passed.` (16 checks, including CSRF rejection, API key scope/revocation, audit log, logout, and a 429 from the auth rate limit).
   - Rate-limit counters persist for one minute. If you re-run within a minute, the login step itself may get a 429; wait a minute first.
 - [ ] **Real authenticator app.** Run `npm run smoke:api -- --mfa` and follow the prompts. Use a phone app such as Google Authenticator, Microsoft Authenticator, Aegis or 1Password, and enter the secret manually.
   - Enrolment succeeds, recovery codes are printed, and the second login with a fresh code from the app succeeds.
@@ -182,10 +182,10 @@ Set the admin credentials for the script:
 ### 7. Redis outage behaviour
 
 - [ ] With the API running: `docker compose stop valkey`.
-- [ ] `/health/ready` still returns **200**, with `"redis":"fail"`.
-- [ ] `npm run smoke:api -- --rate-limit` (wait 1 minute after the previous run) still passes. The 429 proves limits survive the outage via per-instance counters.
-- [ ] The API log shows `rate limiting is using per-instance counters (redis unavailable)` and `redis error (…)` warnings **at most once per minute each**, not once per request or per reconnect attempt.
-- [ ] `docker compose start valkey`. Within ~30 s, `/health/ready` shows `"redis":"ok"` again **without restarting the API**.
+- [x] `/health/ready` still returns **200**, with `"redis":"fail"`.
+- [x] `npm run smoke:api -- --rate-limit` (wait 1 minute after the previous run) still passes. The 429 proves limits survive the outage via per-instance counters.
+- [x] The API log shows `rate limiting is using per-instance counters (redis unavailable)` and `redis error (…)` warnings **at most once per minute each**, not once per request or per reconnect attempt.
+- [x] `docker compose start valkey`. Within ~30 s, `/health/ready` shows `"redis":"ok"` again **without restarting the API**.
 
 ### 8. Dev email flow (no SMTP configured)
 
@@ -193,20 +193,20 @@ Set the admin credentials for the script:
       `curl.exe -s -X POST http://127.0.0.1:3000/v1/auth/register -H "content-type: application/json" --data-binary "@register.json"`,
       where `register.json` contains `{"email":"dev@example.com","password":"a long dev passphrase","displayName":"Dev"}`.
       Response: `{"status":"verification_pending"}` with HTTP 202.
-- [ ] The API log contains a `DEV EMAIL (not sent)` entry with a link of the form `…/verify-email#token=…`.
-- [ ] POST that token to `/v1/auth/verify-email` (`{"token":"<token>"}`); then logging in as dev@example.com works.
+- [x] The API log contains a `DEV EMAIL (not sent)` entry with a link of the form `…/verify-email#token=…`.
+- [x] POST that token to `/v1/auth/verify-email` (`{"token":"<token>"}`); then logging in as dev@example.com works.
 - [ ] Repeating the registration returns the **identical** 202 response, and the log shows a "Sign-up attempt" email instead (no account enumeration).
 
 ### 9. Production guard rails
 
-- [ ] Temporarily set `APP_ENV=production` in `.env` and run `npm run api:start`. It must **refuse to start**, listing at least:
+- [x] Temporarily set `APP_ENV=production` in `.env` and run `npm run api:start`. It must **refuse to start**, listing at least:
       `PUBLIC_BASE_URL` (https), `NETWORK_MODE` (mainnet), `SMTP_HOST` (required), and the placeholder/secret checks that apply.
       No secret values may appear in the output. Restore `APP_ENV=development`.
 
 ### 10. Log and database hygiene
 
-- [ ] Search the API log output (copy the terminal output to a file if needed) for your admin password, `ap_session=`, and `apk_test_` followed by a long secret. **None** may appear.
-- [ ] In psql (`docker compose exec postgres psql -U actualpay -d actualpay_dev`):
+- [x] Search the API log output (copy the terminal output to a file if needed) for your admin password, `ap_session=`, and `apk_test_` followed by a long secret. **None** may appear.
+- [x] In psql (`docker compose exec postgres psql -U actualpay -d actualpay_dev`):
   - `SELECT left(password_hash, 10) FROM users;` → every row starts with `$argon2id$`
   - `SELECT token_hash FROM sessions LIMIT 3;` → 64-char hex, never the cookie value
   - `SELECT left(secret_ciphertext, 3) FROM totp_credentials;` → `v1.` (encrypted)
@@ -275,7 +275,7 @@ mode), which CI already covers.
 
 ### 4. Probe the configured backends
 
-- [ ] With `ENABLED_ASSETS=xrp` (default dev config): `npm run chain:probe`
+- [x] With `ENABLED_ASSETS=xrp` (default dev config): `npm run chain:probe`
       prints `OK xrpl tip=… final=…` plus live reserve values, and exits 0.
 - [ ] Negative checks (restore afterwards):
   - Set `ETHEREUM_CHAIN_ID=1`, enable `eth` and point `ETHEREUM_RPC_URL` at
@@ -344,9 +344,9 @@ only. For each check, record in Findings: the transaction hash, what
 
 ### 6. Safety checks
 
-- [ ] `npm run chain:watch -- --chain bitcoin --xpub <an xprv/tprv>` is
+- [x] `npm run chain:watch -- --chain bitcoin --xpub <an xprv/tprv>` is
       refused with `extended PRIVATE key`. (Use a throwaway key generated for this test.)
-- [ ] Against the regtest node, `getwalletinfo` on the ActualPay wallet shows
+- [x] Against the regtest node, `getwalletinfo` on the ActualPay wallet shows
       `"private_keys_enabled": false`.
 - [ ] Search all CLI output from this phase for RPC passwords and API keys: none appear.
 
@@ -368,7 +368,9 @@ next phase starts from known-good ground.
 
 | Date | Step | Problem | Root cause | Fix |
 | ---- | ---- | ------- | ---------- | --- |
-|      |      |         |            |     |
+| 2026-10-08 | Env | No Docker daemon in the cloud sandbox | Sandbox limitation | Ran native PostgreSQL 16 and redis-server 7.0 with the same credentials as docker-compose.yml. Valkey was not used. |
+| 2026-10-08 | Phase 1-3 | Not verifiable in the sandbox: Docker steps, interactive `admin:create` prompt (no TTY), real authenticator MFA, Anvil, regtest Bitcoin Core, XRPL/TRON/Sepolia/testnet4 live checks, `getwalletinfo` | No network access to testnets, Foundry or bitcoincore.org; no TTY | Left unticked. Run locally. |
+| 2026-10-08 | Phase 3 §6 | `chain:watch` queries node status before parsing `--xpub`, so an xprv is only refused once a node is reachable | CLI ordering in `apps/api/src/cli/chain-watch.ts` | Not changed. `parseExtendedPublicKey` itself refuses an xprv without echoing it (checked directly). |
 
 ## Open questions
 
