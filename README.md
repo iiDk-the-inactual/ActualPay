@@ -32,7 +32,9 @@ Litecoin, Ethereum, USDT (Ethereum and Tron), TRON and XRP.
 
 ## Quick start (development)
 
-Requires Node.js 22.12+, Docker, and Git.
+Requires Node.js 22.12+, Git, and PostgreSQL 16 plus a Redis-compatible server.
+The commands below use Docker for those two; to install them natively instead,
+see [Local setup without Docker](docs/local-setup-no-docker.md).
 
 ```bash
 npm ci
@@ -50,6 +52,7 @@ npm run api:dev           # http://127.0.0.1:3000
 - [Ledger design](docs/ledger.md)
 - [Security model: identity and access](docs/security-model.md)
 - [Chain integration](docs/chains.md)
+- [Local setup without Docker](docs/local-setup-no-docker.md)
 - [Local verification checklist](TASKS.md)
 - [Security policy](SECURITY.md)
 

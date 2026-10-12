@@ -22,6 +22,7 @@
     "test:all": "node --env-file-if-exists=.env node_modules/vitest/vitest.mjs run",
     "db:migrate": "node --env-file-if-exists=.env --import tsx packages/database/src/cli.ts migrate",
     "db:status": "node --env-file-if-exists=.env --import tsx packages/database/src/cli.ts status",
+    "db:setup-native": "node --env-file-if-exists=.env --import tsx scripts/setup-native-db.ts",
     "licenses:check": "node --import tsx scripts/check-licenses.ts",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run test:integration && npm run licenses:check",
     "admin:create": "node --env-file-if-exists=.env --import tsx apps/api/src/cli/admin-create.ts",
