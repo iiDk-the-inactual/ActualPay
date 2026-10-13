@@ -119,6 +119,14 @@ describe('loadConfig', () => {
     expect(found).toMatch(/SMTP_HOST: production requires SMTP/);
   });
 
+  it('makes Redis optional outside production but required in production', () => {
+    expect(issues(baseEnv({ REDIS_URL: undefined }))).toEqual([]);
+    expect(loadConfig(baseEnv({ REDIS_URL: '' })).redis.url).toBeUndefined();
+    expect(describeConfig(loadConfig(baseEnv({ REDIS_URL: '' }))).redis).toMatch(/not configured/);
+    const found = issues(baseEnv({ APP_ENV: 'production', REDIS_URL: undefined })).join('\n');
+    expect(found).toMatch(/REDIS_URL: production requires Redis/);
+  });
+
   it('treats empty strings as unset', () => {
     expect(issues(baseEnv({ BITCOIN_RPC_URL: '' }))).toEqual([]);
   });

@@ -140,6 +140,13 @@ warning is logged at most once a minute while degraded. Account lockout and
 all financial safety checks live in PostgreSQL and are unaffected.
 `/health/ready` reports Redis status but does not fail on it.
 
+**Redis is optional outside production.** With `REDIS_URL` empty, the API
+always uses the in-process counters: limits apply per process and reset when
+it restarts, and N instances allow N× the rate. A warning is logged at startup
+and `/health/ready` shows `"redis":"not_configured"`. This is meant for local
+development and single-instance trials. With `APP_ENV=production` the
+configuration refuses to start without `REDIS_URL`.
+
 Behind a reverse proxy, set `TRUST_PROXY=true` so limits apply to the real
 client IP, and make sure the proxy overwrites `X-Forwarded-For`.
 

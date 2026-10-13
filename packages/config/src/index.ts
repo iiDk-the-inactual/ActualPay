@@ -37,7 +37,8 @@ export interface AppConfig {
   readonly lockoutPolicy: { readonly maxFailures: number; readonly lockMinutes: number };
   readonly rateLimits: { readonly authPerMinute: number; readonly apiPerMinute: number };
   readonly database: { readonly url: string; readonly poolMax: number; readonly ssl: boolean };
-  readonly redis: { readonly url: string };
+  /** `url` is undefined when no Redis is configured (rate limits then live in process memory). */
+  readonly redis: { readonly url: string | undefined };
   readonly secrets: { readonly sessionSecret: string; readonly encryptionKey: Buffer };
   readonly network: NetworkMode;
   readonly enabledAssets: readonly AssetId[];
@@ -192,7 +193,7 @@ export function describeConfig(config: AppConfig): Record<string, unknown> {
     network: config.network,
     enabledAssets: config.enabledAssets,
     database: host(config.database.url),
-    redis: host(config.redis.url),
+    redis: config.redis.url ? host(config.redis.url) : 'not configured (in-process rate limits)',
     chains: Object.fromEntries(
       Object.entries(config.chains).map(([name, value]) => [name, host(value.url)]),
     ),

@@ -35,6 +35,30 @@ beforeAll(async () => {
   await db.destroy();
 });
 
+describe('Redis not configured', () => {
+  let api: TestApi;
+
+  beforeAll(async () => {
+    api = await createTestApi({ RATE_LIMIT_AUTH_PER_MINUTE: LIMIT, REDIS_URL: '' });
+  });
+  afterAll(async () => {
+    await api.close();
+    await api.db.destroy();
+  });
+
+  it('enforces the limit with in-process counters', async () => {
+    expect(await statuses([api], 5)).toEqual([401, 401, 401, 429, 429]);
+  });
+
+  it('reports redis as not_configured without failing readiness', async () => {
+    const response = await api.app.inject({ method: 'GET', url: '/health/ready' });
+    expect(response.statusCode).toBe(200);
+    expect(response.json<{ checks: Record<string, string> }>().checks['redis']).toBe(
+      'not_configured',
+    );
+  });
+});
+
 describe('Redis unavailable', () => {
   let api: TestApi;
   let deadRedis: Redis;

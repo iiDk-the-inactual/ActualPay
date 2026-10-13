@@ -9,23 +9,11 @@ import { sql } from 'kysely';
 import { describeConfig, loadConfig } from '@actualpay/config';
 import { createDb } from '@actualpay/database';
 import { DevLogMailer, SmtpMailer, type Mailer } from '@actualpay/email';
-import { createLogger } from '@actualpay/shared';
+import { createLogger, type Logger } from '@actualpay/shared';
 import { buildApp } from './app';
 
-async function main(): Promise<void> {
-  const config = loadConfig();
-  const logger = createLogger({ name: 'actualpay-api', level: config.logLevel });
-  logger.info({ config: describeConfig(config) }, 'starting API');
-
-  const db = createDb({
-    url: config.database.url,
-    poolMax: config.database.poolMax,
-    ssl: config.database.ssl,
-    applicationName: 'actualpay-api',
-  });
-  await sql`SELECT 1`.execute(db);
-
-  const redis = new Redis(config.redis.url, {
+async function connectRedis(url: string, logger: Logger): Promise<Redis> {
+  const redis = new Redis(url, {
     lazyConnect: true,
     maxRetriesPerRequest: 1,
     enableOfflineQueue: false,
@@ -43,6 +31,28 @@ async function main(): Promise<void> {
   await redis.connect().catch((error: unknown) => {
     logger.warn({ err: error }, 'redis unavailable at startup');
   });
+  return redis;
+}
+
+async function main(): Promise<void> {
+  const config = loadConfig();
+  const logger = createLogger({ name: 'actualpay-api', level: config.logLevel });
+  logger.info({ config: describeConfig(config) }, 'starting API');
+
+  const db = createDb({
+    url: config.database.url,
+    poolMax: config.database.poolMax,
+    ssl: config.database.ssl,
+    applicationName: 'actualpay-api',
+  });
+  await sql`SELECT 1`.execute(db);
+
+  const redis = config.redis.url ? await connectRedis(config.redis.url, logger) : null;
+  if (!redis) {
+    logger.warn(
+      'REDIS_URL is not set: rate limits are counted in this process only and reset on restart',
+    );
+  }
 
   const mailer: Mailer = config.smtp
     ? new SmtpMailer(config.smtp)
@@ -57,7 +67,7 @@ async function main(): Promise<void> {
     shuttingDown = true;
     logger.info({ signal }, 'shutting down');
     await app.close();
-    redis.disconnect();
+    redis?.disconnect();
     await db.destroy();
     process.exit(0);
   };

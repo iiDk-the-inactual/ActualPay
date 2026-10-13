@@ -73,7 +73,9 @@ export const rawConfigSchema = z.object({
   DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(200).default(10),
   DATABASE_SSL: booleanString.default('false'),
 
-  REDIS_URL: urlWithProtocols(['redis:', 'rediss:']),
+  // Optional outside production. Without it, rate limits are counted in each
+  // API process's own memory (see docs/security-model.md).
+  REDIS_URL: urlWithProtocols(['redis:', 'rediss:']).optional(),
 
   SESSION_SECRET: nonEmpty.min(32, 'must be at least 32 characters'),
   ENCRYPTION_KEY: base64Key32,
@@ -257,6 +259,15 @@ const SECRET_KEYS = [
 
 export function productionRules(config: RawConfig, ctx: z.RefinementCtx): void {
   if (config.APP_ENV !== 'production') return;
+
+  if (!config.REDIS_URL) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['REDIS_URL'],
+      message:
+        'production requires Redis/Valkey: without it, rate limits are per process and reset on restart',
+    });
+  }
 
   if (new URL(config.PUBLIC_BASE_URL).protocol !== 'https:') {
     ctx.addIssue({
