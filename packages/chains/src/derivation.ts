@@ -34,6 +34,29 @@ const PRIVATE_VERSIONS = new Set([
 
 export const MAX_DERIVATION_INDEX = 2 ** 31 - 1;
 
+const MAINNET_VERSIONS = new Set(
+  ['xpub', 'ypub', 'zpub', 'Ltub', 'Mtub'].map((name) => PUBLIC_VERSIONS[name]),
+);
+
+/** Which network family the key's version bytes (xpub/tpub/zpub/…) declare. */
+export function extendedKeyNetwork(key: HDKey): 'mainnet' | 'testnet' {
+  return MAINNET_VERSIONS.has(key.versions.public) ? 'mainnet' : 'testnet';
+}
+
+/**
+ * A serialization-independent identity for an account key: SHA-256 over the
+ * compressed public key and chain code. The same key exported as xpub, zpub or
+ * tpub yields the same id, so it cannot be registered twice under a different
+ * encoding to get duplicate addresses.
+ */
+export function extendedKeyId(key: HDKey): string {
+  if (!key.publicKey || !key.chainCode) throw new Error('Extended key has no public part');
+  const material = new Uint8Array(key.publicKey.length + key.chainCode.length);
+  material.set(key.publicKey, 0);
+  material.set(key.chainCode, key.publicKey.length);
+  return Buffer.from(sha256(material)).toString('hex');
+}
+
 export function parseExtendedPublicKey(extendedKey: string): HDKey {
   let payload: Uint8Array;
   try {

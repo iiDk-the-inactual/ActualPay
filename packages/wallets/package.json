@@ -1,0 +1,18 @@
+{
+  "name": "@actualpay/wallets",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@actualpay/audit": "0.1.0",
+    "@actualpay/chains": "0.1.0",
+    "@actualpay/database": "0.1.0",
+    "@actualpay/shared": "0.1.0",
+    "@scure/bip32": "^2.4.0",
+    "kysely": "^0.29.6"
+  }
+}

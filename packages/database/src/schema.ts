@@ -222,6 +222,39 @@ export interface ApiKeysTable {
   rotated_from_id: string | null;
 }
 
+export interface WalletsTable {
+  id: Generated<string>;
+  organization_id: string;
+  chain: 'bitcoin' | 'litecoin' | 'ethereum' | 'tron' | 'xrpl';
+  network: 'mainnet' | 'testnet';
+  label: string;
+  account_xpub: string | null;
+  key_id: string | null;
+  xrpl_address: string | null;
+  next_index: ColumnType<string, string | number | bigint, string | number | bigint>;
+  status: ColumnType<'active' | 'archived', 'active' | undefined, 'active' | 'archived'>;
+  verified_at: NullableTimestamp;
+  verified_by: string | null;
+  created_by: string;
+  archived_at: NullableTimestamp;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+}
+
+export interface DepositAddressesTable {
+  id: Generated<string>;
+  wallet_id: string;
+  organization_id: string;
+  chain: 'bitcoin' | 'litecoin' | 'ethereum' | 'tron' | 'xrpl';
+  network: 'mainnet' | 'testnet';
+  address: string;
+  derivation_index: ColumnType<string | null, string | number | null, never>;
+  destination_tag: ColumnType<string | null, string | number | null, never>;
+  reference_type: string | null;
+  reference_id: string | null;
+  created_at: Timestamp;
+}
+
 export interface Database {
   organizations: OrganizationsTable;
   assets: AssetsTable;
@@ -238,9 +271,13 @@ export interface Database {
   recovery_codes: RecoveryCodesTable;
   organization_invitations: OrganizationInvitationsTable;
   api_keys: ApiKeysTable;
+  wallets: WalletsTable;
+  deposit_addresses: DepositAddressesTable;
 }
 
 export type Organization = Selectable<OrganizationsTable>;
+export type WalletRow = Selectable<WalletsTable>;
+export type DepositAddressRow = Selectable<DepositAddressesTable>;
 export type LedgerAccountRow = Selectable<LedgerAccountsTable>;
 export type LedgerJournalRow = Selectable<LedgerJournalsTable>;
 export type LedgerEntryRow = Selectable<LedgerEntriesTable>;

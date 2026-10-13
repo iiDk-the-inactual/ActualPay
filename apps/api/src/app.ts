@@ -21,6 +21,7 @@ import { registerAuthRoutes } from './routes/auth';
 import { registerHealthRoutes } from './routes/health';
 import { registerMeRoutes } from './routes/me';
 import { registerOrganizationRoutes } from './routes/organizations';
+import { registerWalletRoutes } from './routes/wallets';
 
 export interface BuildAppOptions {
   readonly config: AppConfig;
@@ -125,6 +126,7 @@ export async function buildApp(
   registerAuthRoutes(app, ctx);
   registerMeRoutes(app, ctx);
   registerOrganizationRoutes(app, ctx);
+  registerWalletRoutes(app, ctx);
 
   return { app, ctx };
 }

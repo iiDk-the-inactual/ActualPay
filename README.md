@@ -3,9 +3,9 @@
 A self-hostable, open-source cryptocurrency payment processor for Bitcoin,
 Litecoin, Ethereum, USDT (Ethereum and Tron), TRON and XRP.
 
-> ⚠️ **Under active development: Phase 3 of 13 complete.** Accounts, organizations,
-> permissions, API keys, the ledger and watch-only chain adapters exist; invoices,
-> wallets and withdrawals do not yet. Do not use
+> ⚠️ **Under active development: Phase 4 of 13 complete.** Accounts, organizations,
+> permissions, API keys, the ledger, watch-only chain adapters and watch-only
+> wallets exist; invoices and withdrawals do not yet. Do not use
 > with real funds. Even when complete, you are responsible for securing your
 > own infrastructure and funds. No software is "100% secure".
 
@@ -24,6 +24,7 @@ Litecoin, Ethereum, USDT (Ethereum and Tron), TRON and XRP.
   scoped API keys (rotation, revocation), and an organization audit log
 - A Fastify API where every route passes one guard chain (auth → CSRF →
   tenant access → permission → validation → idempotency)
+- Watch-only wallets with a first-address confirmation step and race-free deposit-address allocation
 - Watch-only adapters for Bitcoin Core, Litecoin Core, Ethereum (+USDT ERC-20),
   TRON (+USDT TRC-20) and the XRP Ledger, with xpub address derivation and
   network-aware address validation
@@ -52,6 +53,7 @@ npm run api:dev           # http://127.0.0.1:3000
 - [Ledger design](docs/ledger.md)
 - [Security model: identity and access](docs/security-model.md)
 - [Chain integration](docs/chains.md)
+- [Wallets and deposit addresses](docs/wallets.md)
 - [Local setup without Docker](docs/local-setup-no-docker.md)
 - [Local verification checklist](TASKS.md)
 - [Security policy](SECURITY.md)

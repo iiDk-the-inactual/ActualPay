@@ -28,7 +28,8 @@ Each phase appends a new section; earlier sections stay as regression checks.
 | 1     | Repo, config, database, migrations, ledger core | Delivered, needs local verification (below) |
 | 2     | Auth, organizations, RBAC, API keys, HTTP API   | Delivered, needs local verification (below) |
 | 3     | Watch-only chain adapters                       | Delivered, needs local verification (below) |
-| 4–13  | See docs/architecture.md                        | Not started                                 |
+| 4     | Wallets and address derivation                  | Delivered, needs local verification (below) |
+| 5–13  | See docs/architecture.md                        | Not started                                 |
 
 ---
 
@@ -361,6 +362,56 @@ only. For each check, record in Findings: the transaction hash, what
 
 ---
 
+## Phase 4: Wallets and deposit addresses
+
+Read `docs/wallets.md` first. Phase 4 adds migration `0005_wallets`, the
+`packages/wallets` package and the `/wallets` endpoints. Watch-only: nothing in
+this phase can spend. Testnets only.
+
+### 1. Update and verify
+
+- [ ] `npm ci`, then `npm run db:migrate` prints `applied: 0005_wallets`.
+- [ ] `npm run verify` passes with **91 unit tests** and **99 integration tests**
+      (`tests/integration/wallets.test.ts` is 14 of them; none skipped when the
+      chain test nodes are running).
+- [ ] The derivation vectors pass: `tests/unit/wallets-derivation.test.ts`
+      (BIP84 mainnet addresses and the well-known Ethereum address for the
+      standard test mnemonic).
+
+### 2. Manual database guarantees
+
+Run against the dev database; each must **fail**:
+
+- [ ] `UPDATE wallets SET chain = 'tron';` → `immutable`
+- [ ] `UPDATE wallets SET next_index = 0;` (on a wallet that issued addresses) → `backwards`
+- [ ] `DELETE FROM wallets;` → `append-only`
+- [ ] `UPDATE deposit_addresses SET address = 'x';` (needs at least one issued address; with an empty table it reports `UPDATE 0`) → `append-only`
+- [ ] `TRUNCATE deposit_addresses;` → `append-only`
+
+### 3. Real wallet software (the check the tests cannot do)
+
+- [ ] In a wallet you control (a **testnet** profile; never real funds), export
+      the account public key for Ethereum (`m/44'/60'/0'`) and for Bitcoin
+      testnet (`m/84'/1'/0'`).
+- [ ] Sign in as an owner with 2FA enabled. Register each key with
+      `POST /v1/organizations/:orgId/wallets`. The API response's first address
+      must equal the first address your wallet software shows for that account.
+      If it does not, record the wallet, path and both addresses under Findings
+      and do not "fix" the derivation.
+- [ ] A wrong address at `…/confirm` returns 400 and the audit log shows
+      `wallet.confirmation_failed`; the right one returns 200.
+- [ ] Without 2FA the same call returns `MFA_REQUIRED`.
+- [ ] Registering the same key again (even as a `vpub`/`tpub`) returns 409.
+
+### Phase 4 known limitations (do not "fix" without asking)
+
+- One XRPL account serves one organization (destination tags are per wallet).
+- No public "new address" endpoint; addresses are issued by invoices (Phase 5).
+- Change addresses (`/1/*`) are unused until Phase 8.
+- Watchers for archived wallets arrive with Phase 6.
+
+---
+
 ## Findings log
 
 Record every failure, its root cause, and the fix (file and line), so the
@@ -385,4 +436,4 @@ next phase starts from known-good ground.
 
 Items needing a human decision. Do not resolve these unilaterally.
 
-- (none yet)
+- Should two organizations be able to share one XRPL receiving account? Today the answer is no (one account per organization); sharing needs deployment-wide destination tags. See `docs/wallets.md`.
