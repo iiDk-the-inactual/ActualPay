@@ -9,6 +9,6 @@
   },
   "dependencies": {
     "@actualpay/shared": "0.1.0",
-    "nodemailer": "^10.0.15"
+    "nodemailer": "^10.1.0"
   }
 }
