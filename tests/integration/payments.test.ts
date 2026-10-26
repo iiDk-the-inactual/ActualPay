@@ -21,7 +21,7 @@ import {
   type PaymentObservation,
 } from '@actualpay/payments';
 import { confirmWallet, createWallet } from '@actualpay/wallets';
-import { createOrganization, createTestDb, resetDatabase } from './helpers';
+import { createOrganization, createTestDb, initChainCursor, resetDatabase } from './helpers';
 
 const MNEMONIC =
   'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
@@ -46,6 +46,8 @@ beforeAll(async () => {
     .returning('id')
     .executeTakeFirstOrThrow();
   userId = user.id;
+  await initChainCursor(db, 'ethereum');
+  await initChainCursor(db, 'xrpl');
 });
 afterAll(async () => {
   await db.destroy();
@@ -597,5 +599,33 @@ describe('events, books and database guards', () => {
         })
         .execute(),
     ).rejects.toThrow(/duplicate key/);
+  });
+});
+
+describe('watcher safety gate', () => {
+  it('refuses to create an invoice for a chain no watcher has started on', async () => {
+    const { orgId } = await orgWithEthWallet();
+    await db
+      .deleteFrom('chain_cursors')
+      .where('chain', '=', 'ethereum')
+      .execute()
+      .catch(() => undefined);
+    const stillThere = await db
+      .selectFrom('chain_cursors')
+      .select('chain')
+      .where('chain', '=', 'ethereum')
+      .execute();
+    expect(stillThere).toHaveLength(1); // cursors are never deleted (append-only trigger)
+    await sql`ALTER TABLE chain_cursors DISABLE TRIGGER chain_cursors_no_delete`.execute(db);
+    try {
+      await db.deleteFrom('chain_cursors').where('chain', '=', 'ethereum').execute();
+      await expect(createInvoice(db, invoiceParams(orgId), meta)).rejects.toMatchObject({
+        code: 'UPSTREAM_UNAVAILABLE',
+      });
+    } finally {
+      await sql`ALTER TABLE chain_cursors ENABLE TRIGGER chain_cursors_no_delete`.execute(db);
+      await initChainCursor(db, 'ethereum');
+    }
+    await expect(createInvoice(db, invoiceParams(orgId), meta)).resolves.toBeDefined();
   });
 });

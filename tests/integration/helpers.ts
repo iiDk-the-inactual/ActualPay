@@ -42,3 +42,17 @@ export async function createOrganization(db: Db, name = 'Test Org'): Promise<str
     .executeTakeFirstOrThrow();
   return row.id;
 }
+
+/** Pretend a watcher has started scanning `chain` (invoices refuse to exist before that). */
+export async function initChainCursor(
+  db: Db,
+  chain: 'bitcoin' | 'litecoin' | 'ethereum' | 'tron' | 'xrpl',
+  network: 'mainnet' | 'testnet' = 'testnet',
+  cursor = '0',
+): Promise<void> {
+  await db
+    .insertInto('chain_cursors')
+    .values({ chain, network, cursor })
+    .onConflict((oc) => oc.columns(['chain', 'network']).doNothing())
+    .execute();
+}

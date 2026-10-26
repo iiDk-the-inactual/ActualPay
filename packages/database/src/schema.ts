@@ -232,6 +232,11 @@ export interface WalletsTable {
   key_id: string | null;
   xrpl_address: string | null;
   next_index: ColumnType<string, string | number | bigint, string | number | bigint>;
+  watched_through: ColumnType<
+    string,
+    string | number | bigint | undefined,
+    string | number | bigint
+  >;
   status: ColumnType<'active' | 'archived', 'active' | undefined, 'active' | 'archived'>;
   verified_at: NullableTimestamp;
   verified_by: string | null;
@@ -324,6 +329,7 @@ export interface PaymentsTable {
   detected_at: Timestamp;
   confirmed_at: NullableTimestamp;
   reversed_at: NullableTimestamp;
+  last_checked_at: NullableTimestamp;
   created_at: Timestamp;
   updated_at: Timestamp;
 }
@@ -336,6 +342,55 @@ export interface DomainEventsTable {
   subject_id: string;
   payload: ColumnType<Record<string, unknown>, string, never>;
   occurred_at: Timestamp;
+}
+
+export type IssueSeverity = 'warning' | 'critical';
+
+export interface ChainCursorsTable {
+  chain: 'bitcoin' | 'litecoin' | 'ethereum' | 'tron' | 'xrpl';
+  network: 'mainnet' | 'testnet';
+  cursor: ColumnType<string, string, string>;
+  initialised_at: Timestamp;
+  scanned_at: NullableTimestamp;
+  tip_height: ColumnType<string | null, string | bigint | null | undefined, string | bigint | null>;
+  final_height: ColumnType<
+    string | null,
+    string | bigint | null | undefined,
+    string | bigint | null
+  >;
+  synced: ColumnType<boolean | null, boolean | null | undefined, boolean | null>;
+  last_error: ColumnType<string | null, string | null | undefined, string | null>;
+  last_error_at: NullableTimestamp;
+  updated_at: Timestamp;
+}
+
+export interface JobLeasesTable {
+  name: string;
+  locked_by: ColumnType<string | null, string | null | undefined, string | null>;
+  locked_until: NullableTimestamp;
+  last_started_at: NullableTimestamp;
+  last_finished_at: NullableTimestamp;
+  last_error: ColumnType<string | null, string | null | undefined, string | null>;
+  last_error_at: NullableTimestamp;
+  run_count: ColumnType<string, string | number | undefined, string | number>;
+}
+
+export interface ReconciliationIssuesTable {
+  id: Generated<string>;
+  kind: string;
+  severity: IssueSeverity;
+  status: ColumnType<'open' | 'resolved', 'open' | undefined, 'open' | 'resolved'>;
+  subject_type: string;
+  subject_id: string;
+  organization_id: string | null;
+  summary: string;
+  details: ColumnType<Record<string, unknown>, string | undefined, string>;
+  occurrences: ColumnType<number, number | undefined, number>;
+  first_seen_at: Timestamp;
+  last_seen_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  resolved_at: NullableTimestamp;
+  resolved_by: ColumnType<string | null, string | null | undefined, string | null>;
+  resolution_note: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 export interface Database {
@@ -360,6 +415,9 @@ export interface Database {
   invoices: InvoicesTable;
   payments: PaymentsTable;
   domain_events: DomainEventsTable;
+  chain_cursors: ChainCursorsTable;
+  job_leases: JobLeasesTable;
+  reconciliation_issues: ReconciliationIssuesTable;
 }
 
 export type Organization = Selectable<OrganizationsTable>;
@@ -367,6 +425,8 @@ export type WalletRow = Selectable<WalletsTable>;
 export type InvoiceRow = Selectable<InvoicesTable>;
 export type PaymentRow = Selectable<PaymentsTable>;
 export type PaymentLinkRow = Selectable<PaymentLinksTable>;
+export type ChainCursorRow = Selectable<ChainCursorsTable>;
+export type ReconciliationIssueRow = Selectable<ReconciliationIssuesTable>;
 export type DepositAddressRow = Selectable<DepositAddressesTable>;
 export type LedgerAccountRow = Selectable<LedgerAccountsTable>;
 export type LedgerJournalRow = Selectable<LedgerJournalsTable>;

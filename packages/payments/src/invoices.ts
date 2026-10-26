@@ -233,6 +233,21 @@ export async function createInvoiceTx(tx: Tx, params: CreateInvoiceParams, meta:
       `expiresInMinutes must be between ${MIN_INVOICE_TTL_MINUTES} and ${MAX_INVOICE_TTL_MINUTES}.`,
     );
 
+  // Never hand out an address that nothing is watching: a watcher must have
+  // started scanning this chain before the first invoice exists.
+  const cursor = await tx
+    .selectFrom('chain_cursors')
+    .select('chain')
+    .where('chain', '=', asset.chain)
+    .where('network', '=', params.network)
+    .executeTakeFirst();
+  if (!cursor) {
+    throw new AppError(
+      'UPSTREAM_UNAVAILABLE',
+      `Payment watching for ${asset.chain} has not started yet. Make sure the worker is running.`,
+    );
+  }
+
   const walletId = await selectWallet(tx, {
     organizationId: params.organizationId,
     chain: asset.chain,

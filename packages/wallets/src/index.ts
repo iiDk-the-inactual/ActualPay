@@ -94,6 +94,12 @@ export interface CreateWalletParams {
   readonly accountXpub?: string;
   /** Classic receiving address (XRPL only). */
   readonly xrplAddress?: string;
+  /**
+   * XRPL only. The account the deployment's watcher monitors (XRPL_DEPOSIT_ACCOUNT),
+   * or null when none is configured. When this key is present, the wallet address
+   * must equal it: the watcher only sees payments to that one account.
+   */
+  readonly xrplWatchedAccount?: string | null;
 }
 
 export async function createWallet(
@@ -118,6 +124,16 @@ export async function createWallet(
       ? validateAddress('xrpl', params.network, params.xrplAddress)
       : null;
     if (!canonical) throw AppError.validation('A valid XRPL classic address is required.');
+    if (params.xrplWatchedAccount !== undefined) {
+      if (params.xrplWatchedAccount === null)
+        throw AppError.validation(
+          'XRPL_DEPOSIT_ACCOUNT is not configured, so no watcher is monitoring an XRPL account.',
+        );
+      if (validateAddress('xrpl', params.network, params.xrplWatchedAccount) !== canonical)
+        throw AppError.validation(
+          'This address is not the account the watcher monitors (XRPL_DEPOSIT_ACCOUNT).',
+        );
+    }
     xrplAddress = canonical;
     firstIndex = 1;
   } else {
@@ -320,6 +336,17 @@ export async function allocateDepositAddress(
     if (!wallet.verified_at)
       throw AppError.conflict("Confirm the wallet's first address before it can issue addresses.");
     const index = Number(wallet.next_index);
+    // UTXO chains only see addresses the node has imported. Never issue one the
+    // node is not watching yet; the worker extends the range ahead of demand.
+    if (
+      (wallet.chain === 'bitcoin' || wallet.chain === 'litecoin') &&
+      index >= Number(wallet.watched_through)
+    ) {
+      throw new AppError(
+        'UPSTREAM_UNAVAILABLE',
+        "This wallet's addresses are not being watched yet. Make sure the worker is running.",
+      );
+    }
     const limit = wallet.chain === 'xrpl' ? MAX_XRPL_TAG : MAX_ACCOUNT_INDEX;
     if (index > limit) throw AppError.conflict('This wallet has run out of addresses.');
     const target = deriveDeposit(wallet, index);

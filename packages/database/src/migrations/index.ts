@@ -10,6 +10,7 @@ import * as m0003 from './0003_audit_and_idempotency';
 import * as m0004 from './0004_identity';
 import * as m0005 from './0005_wallets';
 import * as m0006 from './0006_invoices';
+import * as m0007 from './0007_watcher';
 
 export const migrations: Record<string, Migration> = {
   '0001_foundation': m0001,
@@ -18,4 +19,5 @@ export const migrations: Record<string, Migration> = {
   '0004_identity': m0004,
   '0005_wallets': m0005,
   '0006_invoices': m0006,
+  '0007_watcher': m0007,
 };

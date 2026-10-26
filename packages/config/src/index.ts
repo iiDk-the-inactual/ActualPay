@@ -36,6 +36,7 @@ export interface AppConfig {
   readonly sessionPolicy: { readonly idleMinutes: number; readonly absoluteHours: number };
   readonly lockoutPolicy: { readonly maxFailures: number; readonly lockMinutes: number };
   readonly rateLimits: { readonly authPerMinute: number; readonly apiPerMinute: number };
+  readonly worker: { readonly scanIntervalSeconds: number };
   readonly database: { readonly url: string; readonly poolMax: number; readonly ssl: boolean };
   /** `url` is undefined when no Redis is configured (rate limits then live in process memory). */
   readonly redis: { readonly url: string | undefined };
@@ -148,6 +149,7 @@ export function loadConfig(env: RawEnv = process.env): AppConfig {
       authPerMinute: c.RATE_LIMIT_AUTH_PER_MINUTE,
       apiPerMinute: c.RATE_LIMIT_API_PER_MINUTE,
     },
+    worker: { scanIntervalSeconds: c.WORKER_SCAN_INTERVAL_SECONDS },
     database: { url: c.DATABASE_URL, poolMax: c.DATABASE_POOL_MAX, ssl: c.DATABASE_SSL },
     redis: { url: c.REDIS_URL },
     secrets: {

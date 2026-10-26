@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { recordObservation } from '@actualpay/payments';
 import { confirmWallet, createWallet } from '@actualpay/wallets';
 import { Agent, createOrg, createTestApi, signedInUser, type TestApi } from './api-helpers';
-import { resetDatabase } from './helpers';
+import { initChainCursor, resetDatabase } from './helpers';
 
 const MNEMONIC =
   'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
@@ -17,6 +17,7 @@ const meta = { requestId: 'test' };
 beforeAll(async () => {
   api = await createTestApi({ ENABLED_ASSETS: 'eth,xrp', ETHEREUM_RPC_URL: 'http://127.0.0.1:1' });
   await resetDatabase(api.db);
+  await initChainCursor(api.db, 'ethereum');
 });
 afterAll(async () => {
   await api.close();

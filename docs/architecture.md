@@ -72,18 +72,18 @@ partial-payment attacks. Reserves are read live (`server_info`), not hardcoded.
 
 ## Technology choices
 
-| Concern      | Choice                            | Why                                                                                                                                                                     |
-| ------------ | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Runtime      | Node.js 22 LTS, TypeScript strict | Requested; strict mode + `noUncheckedIndexedAccess` for safety                                                                                                          |
-| Database     | PostgreSQL 16+                    | Transactions, row locks, CHECK and deferred constraints; `NULLS NOT DISTINCT` needs 15+                                                                                 |
-| Query layer  | Kysely (MIT)                      | Typed SQL builder with explicit `FOR UPDATE`; no ORM magic around money                                                                                                 |
-| Migrations   | Kysely migrator, raw SQL          | Reviewers see the exact DDL; advisory lock prevents concurrent runs                                                                                                     |
-| Validation   | Zod (MIT)                         | Runtime validation for config and (later) every API input                                                                                                               |
-| Logging      | Pino (MIT)                        | Structured JSON with redaction; bigints emitted as exact strings                                                                                                        |
-| Cache/limits | Valkey (BSD-3) / Redis-compatible | Rate limits and cache only, never the source of truth                                                                                                                   |
-| Jobs         | pg-boss (MIT), Phase 6            | Jobs live in PostgreSQL, so enqueueing is part of the same transaction as the change that caused it. BullMQ was considered and rejected for money paths for this reason |
-| HTTP         | Fastify (MIT), Phase 2            | Schema-first, fast, mature, good TypeScript support                                                                                                                     |
-| Tests        | Vitest (MIT)                      | Unit + real-PostgreSQL integration tests                                                                                                                                |
+| Concern      | Choice                                                                  | Why                                                                                                                                                                     |
+| ------------ | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime      | Node.js 22 LTS, TypeScript strict                                       | Requested; strict mode + `noUncheckedIndexedAccess` for safety                                                                                                          |
+| Database     | PostgreSQL 16+                                                          | Transactions, row locks, CHECK and deferred constraints; `NULLS NOT DISTINCT` needs 15+                                                                                 |
+| Query layer  | Kysely (MIT)                                                            | Typed SQL builder with explicit `FOR UPDATE`; no ORM magic around money                                                                                                 |
+| Migrations   | Kysely migrator, raw SQL                                                | Reviewers see the exact DDL; advisory lock prevents concurrent runs                                                                                                     |
+| Validation   | Zod (MIT)                                                               | Runtime validation for config and (later) every API input                                                                                                               |
+| Logging      | Pino (MIT)                                                              | Structured JSON with redaction; bigints emitted as exact strings                                                                                                        |
+| Cache/limits | Valkey (BSD-3) / Redis-compatible                                       | Rate limits and cache only, never the source of truth                                                                                                                   |
+| Jobs         | PostgreSQL lease table (Phase 6; pg-boss rejected, see docs/watcher.md) | Jobs live in PostgreSQL, so enqueueing is part of the same transaction as the change that caused it. BullMQ was considered and rejected for money paths for this reason |
+| HTTP         | Fastify (MIT), Phase 2                                                  | Schema-first, fast, mature, good TypeScript support                                                                                                                     |
+| Tests        | Vitest (MIT)                                                            | Unit + real-PostgreSQL integration tests                                                                                                                                |
 
 Production dependency licenses are enforced by `npm run licenses:check`.
 
@@ -101,10 +101,12 @@ packages/
   chains/    watch-only chain adapters, address derivation and validation
   wallets/   watch-only wallets, address confirmation and deposit-address allocation
   payments/  invoices, payment links, payment state machine, ledger postings
+  watcher/   cursors, scan loop, rechecks, reorg handling, leases, reconciliation
 apps/
   api/       Fastify HTTP API (routes, guard chain, idempotency), CLIs
              (admin:create, chain:probe, chain:watch)
-             (worker, signer, dashboard arrive in later phases)
+  worker/    the chain watcher process (worker:start, worker:once, worker:status)
+             (signer, dashboard arrive in later phases)
 tests/       unit and integration suites
 docs/        design and operations documentation
 ```
@@ -116,7 +118,7 @@ docs/        design and operations documentation
 3. Chain adapters (watch-only): BTC, LTC, ETH/ERC-20, TRX/TRC-20, XRPL ← **done** (see docs/chains.md)
 4. Wallets and address derivation ← **done** (see docs/wallets.md)
 5. Invoices, payment links, payment state machine ← **done** (see docs/payments.md)
-6. Chain watchers, confirmations, reorg handling, reconciliation, job system
+6. Chain watchers, confirmations, reorg handling, reconciliation, job system ← **done** (see docs/watcher.md)
 7. Webhooks
 8. Signer service and withdrawals
 9. Merchant and admin dashboards

@@ -163,6 +163,9 @@ export const rawConfigSchema = z.object({
   RATE_LIMIT_AUTH_PER_MINUTE: z.coerce.number().int().min(1).max(10_000).default(10),
   /** Requests per minute per API key / session on the general API. */
   RATE_LIMIT_API_PER_MINUTE: z.coerce.number().int().min(1).max(100_000).default(600),
+
+  /** How often the worker runs a full cycle (scan, recheck, expiry). */
+  WORKER_SCAN_INTERVAL_SECONDS: z.coerce.number().int().min(2).max(3600).default(15),
 });
 
 export type RawConfig = z.infer<typeof rawConfigSchema>;

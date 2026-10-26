@@ -28,6 +28,10 @@
     "admin:create": "node --env-file-if-exists=.env --import tsx apps/api/src/cli/admin-create.ts",
     "api:dev": "node --env-file-if-exists=.env --watch --import tsx apps/api/src/server.ts",
     "api:start": "node --env-file-if-exists=.env --import tsx apps/api/src/server.ts",
+    "worker:start": "node --env-file-if-exists=.env --import tsx apps/worker/src/main.ts start",
+    "worker:dev": "node --env-file-if-exists=.env --watch --import tsx apps/worker/src/main.ts start",
+    "worker:once": "node --env-file-if-exists=.env --import tsx apps/worker/src/main.ts once",
+    "worker:status": "node --env-file-if-exists=.env --import tsx apps/worker/src/main.ts status",
     "smoke:api": "node --import tsx scripts/smoke-api.ts",
     "chain:probe": "node --env-file-if-exists=.env --import tsx apps/api/src/cli/chain-probe.ts",
     "chain:watch": "node --env-file-if-exists=.env --import tsx apps/api/src/cli/chain-watch.ts"

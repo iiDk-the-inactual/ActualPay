@@ -30,7 +30,8 @@ Each phase appends a new section; earlier sections stay as regression checks.
 | 3     | Watch-only chain adapters                       | Delivered, needs local verification (below) |
 | 4     | Wallets and address derivation                  | Delivered, needs local verification (below) |
 | 5     | Invoices, payment links, payment state machine  | Delivered, needs local verification (below) |
-| 6–13  | See docs/architecture.md                        | Not started                                 |
+| 6     | Chain watchers, reorgs, reconciliation, worker  | Delivered, needs local verification (below) |
+| 7–13  | See docs/architecture.md                        | Not started                                 |
 
 ---
 
@@ -440,6 +441,45 @@ endpoints. Testnets only.
 - A reversal the books cannot absorb throws; operator booking comes in Phase 6.
 - Chain watchers (Phase 6) are what feed payments in; until then payments
   only arrive through the `recordObservation` function.
+
+---
+
+## Phase 6: Chain watching and the worker
+
+Read `docs/watcher.md` first. Phase 6 adds migration `0007_watcher`, the
+`packages/watcher` package and the `apps/worker` process. Testnets only.
+
+- [ ] `npm run db:migrate` prints `applied: 0007_watcher`.
+- [ ] `npm run verify` passes with **108 unit tests** and **147 integration tests**
+      (none skipped when Anvil and regtest bitcoind are running; the two
+      `watcher-*.test.ts` files are the real-chain end-to-end runs).
+- [ ] Add `WORKER_SCAN_INTERVAL_SECONDS` to `.env` (default 15).
+- [ ] Without the worker running, creating an invoice fails with
+      `UPSTREAM_UNAVAILABLE`. Start it (`npm run worker:dev`) and it succeeds.
+- [ ] `npm run worker:status` prints a cursor per watched chain, leases, and
+      (ideally) no open issues.
+- [ ] **Real testnet payment, end to end.** With XRPL or Sepolia ETH (Phase 3
+      faucet steps), register and confirm a wallet, create an invoice for a
+      small amount, pay it from a wallet app, and watch the invoice go
+      `open → processing → paid` with the exact amount. Record the transaction
+      hash under Findings.
+- [ ] Stop the worker, pay an invoice, wait, start the worker again: the payment
+      is still found (the cursor catches up).
+- [ ] Run two workers at once (two terminals): `worker:status` shows each lease
+      held by one worker; payments are still credited exactly once.
+- [ ] Stop your Bitcoin/Ethereum node while the worker runs: the worker logs the
+      failure, `chain_cursors.last_error` is set, nothing is reversed, and it
+      recovers on its own when the node returns. After 15 minutes of no scans a
+      `watcher_stale` issue opens.
+- [ ] Manual DB guarantees (each must fail): `DELETE FROM chain_cursors;`
+      (append-only), `UPDATE wallets SET watched_through = 0;` on a wallet with
+      a non-zero value (cannot shrink).
+
+### Phase 6 known limitations (do not "fix" without asking)
+
+- ETH/TRX sent by smart contracts are not detected (see docs/watcher.md).
+- Custody-vs-chain balance reconciliation waits for Phase 8.
+- Issues are rows, not alerts; wiring to monitoring is an operator step.
 
 ---
 

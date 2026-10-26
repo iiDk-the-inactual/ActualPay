@@ -145,6 +145,9 @@ export function registerWalletRoutes(app: FastifyInstance, ctx: ApiContext): voi
           label: body.label,
           ...(body.accountXpub ? { accountXpub: body.accountXpub } : {}),
           ...(body.xrplAddress ? { xrplAddress: body.xrplAddress } : {}),
+          ...(body.chain === 'xrpl'
+            ? { xrplWatchedAccount: ctx.config.chains.xrpl?.depositAccount ?? null }
+            : {}),
         },
         meta,
       );
