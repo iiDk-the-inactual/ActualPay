@@ -16,6 +16,7 @@ import {
   jsonRpc,
   parseExtendedPublicKey,
 } from '@actualpay/chains';
+import { eventually } from './helpers';
 
 const rawUrl = process.env['UTXO_REGTEST_URL'];
 const chain = (process.env['UTXO_REGTEST_CHAIN'] ?? 'bitcoin') as 'bitcoin' | 'litecoin';
@@ -50,7 +51,15 @@ describe.skipIf(!rawUrl)(`${chain} Core adapter (regtest)`, () => {
       throw new Error('UTXO_REGTEST_URL must point at a regtest node');
     await rpc('createwallet', [minerWallet]);
     minerAddress = (await rpc('getnewaddress', ['', 'bech32'], minerWallet)) as string;
-    await mine(101);
+    // 110 blocks leave ten mature coinbases to spend. Regtest rewards halve every 150
+    // blocks, so on a node that has mined for a very long time the miner can no longer
+    // fund these tests: a fresh datadir fixes it.
+    await mine(110);
+    const funds = (await rpc('getbalance', [], minerWallet)) as number;
+    if (funds < 0.6)
+      throw new Error(
+        'The regtest miner wallet has too little to fund these tests: restart bitcoind with a fresh datadir.',
+      );
   });
 
   it('creates a watch-only descriptor wallet and refuses wallets with private keys', async () => {
@@ -88,7 +97,11 @@ describe.skipIf(!rawUrl)(`${chain} Core adapter (regtest)`, () => {
     // 0.10000001 is not representable as a binary float: exactness check.
     const txid = (await rpc('sendtoaddress', [to, '0.10000001'], minerWallet)) as string;
 
-    let scan = await adapter.scanIncoming(cursor);
+    // The node hands mempool transactions to wallets asynchronously: wait until it shows.
+    let scan = await eventually(async () => {
+      const result = await adapter.scanIncoming(cursor);
+      return result.transfers.some((t) => t.txHash === txid) ? result : undefined;
+    });
     const pending = scan.transfers.find((t) => t.txHash === txid);
     expect(pending).toMatchObject({
       toAddress: to,
@@ -127,14 +140,14 @@ describe.skipIf(!rawUrl)(`${chain} Core adapter (regtest)`, () => {
   it('ignores payments to addresses outside the watched descriptor', async () => {
     const cursor = (await adapter.scanIncoming(null)).cursor;
     const stranger = (await rpc('getnewaddress', ['', 'bech32'], minerWallet)) as string;
-    await rpc('sendtoaddress', [stranger, '1'], minerWallet);
+    await rpc('sendtoaddress', [stranger, '0.1'], minerWallet);
     await mine(1);
     expect((await adapter.scanIncoming(cursor)).transfers).toHaveLength(0);
   });
 
   it('drops a reorged-out payment back to unconfirmed, never leaving it "confirmed"', async () => {
     const to = deriveUtxoAddress(chain, 'regtest', account, 9);
-    const txid = (await rpc('sendtoaddress', [to, '0.5'], minerWallet)) as string;
+    const txid = (await rpc('sendtoaddress', [to, '0.2'], minerWallet)) as string;
     const [blockHash] = (await mine(1)) as string[];
     const height = (await rpc('getblockcount')) as number;
     const scan = await adapter.scanIncoming((await rpc('getblockhash', [height - 2])) as string);

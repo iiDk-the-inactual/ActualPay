@@ -3,9 +3,10 @@
 A self-hostable, open-source cryptocurrency payment processor for Bitcoin,
 Litecoin, Ethereum, USDT (Ethereum and Tron), TRON and XRP.
 
-> ⚠️ **Under active development: Phase 6 of 13 complete.** Accounts, organizations,
+> ⚠️ **Under active development: Phase 7 of 13 complete.** Accounts, organizations,
 > permissions, API keys, the ledger, watch-only chain adapters, wallets, invoices,
-> payment links and the chain-watching worker exist; withdrawals do not yet. Do not use
+> payment links, the chain-watching worker and signed webhooks exist; withdrawals
+> do not yet. Do not use
 > with real funds. Even when complete, you are responsible for securing your
 > own infrastructure and funds. No software is "100% secure".
 
@@ -25,6 +26,7 @@ Litecoin, Ethereum, USDT (Ethereum and Tron), TRON and XRP.
 - A Fastify API where every route passes one guard chain (auth → CSRF →
   tenant access → permission → validation → idempotency)
 - Watch-only wallets with a first-address confirmation step and race-free deposit-address allocation
+- Signed, retried webhooks with SSRF protection, written in the same transaction as the event they announce
 - A worker that watches the chains: persistent cursors, reorg handling with a mass-reversal circuit breaker, reconciliation issues
 - Invoices, hosted payment views and payment links with an exact-once, reorg-safe payment state machine
 - Watch-only adapters for Bitcoin Core, Litecoin Core, Ethereum (+USDT ERC-20),
@@ -59,6 +61,7 @@ npm run worker:dev        # in a second terminal: watches the chains
 - [Wallets and deposit addresses](docs/wallets.md)
 - [Invoices and payments](docs/payments.md)
 - [Chain watching and the worker](docs/watcher.md)
+- [Webhooks](docs/webhooks.md)
 - [Local setup without Docker](docs/local-setup-no-docker.md)
 - [Local verification checklist](TASKS.md)
 - [Security policy](SECURITY.md)

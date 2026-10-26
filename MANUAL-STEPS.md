@@ -23,3 +23,18 @@ phase so nothing is forgotten.
   `critical` issue.
 - **A `reversal_blocked` issue means a real loss.** Decide the accounting
   (docs/ledger.md) before anyone resolves it.
+
+## From Phase 7
+
+- **Give merchants the receiver guide.** `docs/webhooks.md` is written for
+  them (verifying signatures, at-least-once delivery, retries).
+- **Outbound network policy.** Webhook requests leave from the worker. If you
+  firewall egress, allow outbound HTTPS from the worker host, and keep the
+  worker off any network that can reach internal services (defence in depth
+  beside the built-in SSRF rules).
+- **Retention.** `webhook_deliveries` and `domain_events` grow forever. Decide a
+  retention period (for example 90 days for deliveries) and schedule the purge;
+  the tables block deletes on purpose, so this needs a deliberate maintenance
+  procedure (see docs/webhooks.md "Not covered").
+- **Never enable `WEBHOOK_ALLOW_HTTP` / `WEBHOOK_ALLOW_PRIVATE_NETWORKS` in
+  production.** The server refuses to start if you do.

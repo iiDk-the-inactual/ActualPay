@@ -393,6 +393,46 @@ export interface ReconciliationIssuesTable {
   resolution_note: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
+export interface WebhookEndpointsTable {
+  id: Generated<string>;
+  organization_id: string;
+  url: string;
+  description: ColumnType<string | null, string | null | undefined, string | null>;
+  event_types: ColumnType<string[], string[], string[]>;
+  secret_ciphertext: ColumnType<string, string, string>;
+  previous_secret_ciphertext: ColumnType<string | null, string | null | undefined, string | null>;
+  previous_secret_expires_at: NullableTimestamp;
+  status: ColumnType<'active' | 'disabled', 'active' | undefined, 'active' | 'disabled'>;
+  disabled_reason: ColumnType<string | null, string | null | undefined, string | null>;
+  consecutive_failures: ColumnType<number, number | undefined, number>;
+  created_by_type: 'user' | 'api_key';
+  created_by_id: string;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+}
+
+export type WebhookDeliveryStatus = 'pending' | 'delivered' | 'failed';
+
+export interface WebhookDeliveriesTable {
+  id: Generated<string>;
+  endpoint_id: string;
+  organization_id: string;
+  event_id: string | number | bigint;
+  status: ColumnType<
+    WebhookDeliveryStatus,
+    WebhookDeliveryStatus | undefined,
+    WebhookDeliveryStatus
+  >;
+  attempts: ColumnType<number, number | undefined, number>;
+  next_attempt_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  locked_until: NullableTimestamp;
+  last_attempt_at: NullableTimestamp;
+  last_status_code: ColumnType<number | null, number | null | undefined, number | null>;
+  last_error: ColumnType<string | null, string | null | undefined, string | null>;
+  delivered_at: NullableTimestamp;
+  created_at: Timestamp;
+}
+
 export interface Database {
   organizations: OrganizationsTable;
   assets: AssetsTable;
@@ -418,6 +458,8 @@ export interface Database {
   chain_cursors: ChainCursorsTable;
   job_leases: JobLeasesTable;
   reconciliation_issues: ReconciliationIssuesTable;
+  webhook_endpoints: WebhookEndpointsTable;
+  webhook_deliveries: WebhookDeliveriesTable;
 }
 
 export type Organization = Selectable<OrganizationsTable>;
@@ -426,6 +468,8 @@ export type InvoiceRow = Selectable<InvoicesTable>;
 export type PaymentRow = Selectable<PaymentsTable>;
 export type PaymentLinkRow = Selectable<PaymentLinksTable>;
 export type ChainCursorRow = Selectable<ChainCursorsTable>;
+export type WebhookEndpointRow = Selectable<WebhookEndpointsTable>;
+export type WebhookDeliveryRow = Selectable<WebhookDeliveriesTable>;
 export type ReconciliationIssueRow = Selectable<ReconciliationIssuesTable>;
 export type DepositAddressRow = Selectable<DepositAddressesTable>;
 export type LedgerAccountRow = Selectable<LedgerAccountsTable>;

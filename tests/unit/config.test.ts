@@ -127,6 +127,26 @@ describe('loadConfig', () => {
     expect(found).toMatch(/REDIS_URL: production requires Redis/);
   });
 
+  it('refuses development-only webhook relaxations in production', () => {
+    const found = issues(
+      baseEnv({
+        APP_ENV: 'production',
+        WEBHOOK_ALLOW_HTTP: 'true',
+        WEBHOOK_ALLOW_PRIVATE_NETWORKS: 'true',
+      }),
+    ).join('\n');
+    expect(found).toMatch(/WEBHOOK_ALLOW_HTTP: must be false in production/);
+    expect(found).toMatch(/WEBHOOK_ALLOW_PRIVATE_NETWORKS: must be false in production/);
+    const dev = loadConfig(
+      baseEnv({ WEBHOOK_ALLOW_HTTP: 'true', WEBHOOK_ALLOW_PRIVATE_NETWORKS: 'true' }),
+    );
+    expect(dev.webhooks).toEqual({ allowHttp: true, allowPrivateNetworks: true });
+    expect(loadConfig(baseEnv({})).webhooks).toEqual({
+      allowHttp: false,
+      allowPrivateNetworks: false,
+    });
+  });
+
   it('treats empty strings as unset', () => {
     expect(issues(baseEnv({ BITCOIN_RPC_URL: '' }))).toEqual([]);
   });

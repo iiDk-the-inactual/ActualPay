@@ -11,6 +11,7 @@
  */
 import { randomUUID } from 'node:crypto';
 import { sql } from 'kysely';
+import { SecretBox } from '@actualpay/auth';
 import { createChainAdapters } from '@actualpay/chains';
 import { describeConfig, loadConfig } from '@actualpay/config';
 import { createDb } from '@actualpay/database';
@@ -53,7 +54,16 @@ async function main(): Promise<void> {
       return new Set(rows.map((r) => r.address.toLowerCase()));
     },
   });
-  const deps = { db, logger, adapters, ownerId: `worker-${randomUUID().slice(0, 8)}` };
+  const deps = {
+    db,
+    logger,
+    adapters,
+    ownerId: `worker-${randomUUID().slice(0, 8)}`,
+    webhooks: {
+      box: new SecretBox(config.secrets.encryptionKey, 'webhooks'),
+      policy: config.webhooks,
+    },
+  };
 
   if (mode === 'once') {
     process.stdout.write(`${JSON.stringify(await runCycle(deps), null, 2)}\n`);

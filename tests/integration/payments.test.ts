@@ -577,7 +577,10 @@ describe('events, books and database guards', () => {
       /append-only/,
     );
     await expect(db.deleteFrom('domain_events').execute()).rejects.toThrow(/append-only/);
-    await expect(sql`TRUNCATE domain_events`.execute(db)).rejects.toThrow(/append-only/);
+    // Truncation is refused too: by the append-only trigger, or by the foreign key from webhook deliveries.
+    await expect(sql`TRUNCATE domain_events`.execute(db)).rejects.toThrow(
+      /append-only|cannot truncate/,
+    );
   });
 
   it('gives one address to one invoice only', async () => {

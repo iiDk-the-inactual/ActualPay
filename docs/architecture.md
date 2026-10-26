@@ -102,6 +102,7 @@ packages/
   wallets/   watch-only wallets, address confirmation and deposit-address allocation
   payments/  invoices, payment links, payment state machine, ledger postings
   watcher/   cursors, scan loop, rechecks, reorg handling, leases, reconciliation
+  webhooks/  endpoints, signing, SSRF-safe delivery with retries
 apps/
   api/       Fastify HTTP API (routes, guard chain, idempotency), CLIs
              (admin:create, chain:probe, chain:watch)
@@ -119,7 +120,7 @@ docs/        design and operations documentation
 4. Wallets and address derivation ← **done** (see docs/wallets.md)
 5. Invoices, payment links, payment state machine ← **done** (see docs/payments.md)
 6. Chain watchers, confirmations, reorg handling, reconciliation, job system ← **done** (see docs/watcher.md)
-7. Webhooks
+7. Webhooks ← **done** (see docs/webhooks.md)
 8. Signer service and withdrawals
 9. Merchant and admin dashboards
 10. Email and optional forwarding

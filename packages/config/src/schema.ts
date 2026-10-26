@@ -164,6 +164,14 @@ export const rawConfigSchema = z.object({
   /** Requests per minute per API key / session on the general API. */
   RATE_LIMIT_API_PER_MINUTE: z.coerce.number().int().min(1).max(100_000).default(600),
 
+  /**
+   * Development only: let webhooks use plain http and private/loopback
+   * destinations (e.g. a local receiver). Refused in production because they
+   * turn webhooks into a way to reach internal services.
+   */
+  WEBHOOK_ALLOW_HTTP: booleanString.default('false'),
+  WEBHOOK_ALLOW_PRIVATE_NETWORKS: booleanString.default('false'),
+
   /** How often the worker runs a full cycle (scan, recheck, expiry). */
   WORKER_SCAN_INTERVAL_SECONDS: z.coerce.number().int().min(2).max(3600).default(15),
 });
@@ -262,6 +270,16 @@ const SECRET_KEYS = [
 
 export function productionRules(config: RawConfig, ctx: z.RefinementCtx): void {
   if (config.APP_ENV !== 'production') return;
+
+  for (const key of ['WEBHOOK_ALLOW_HTTP', 'WEBHOOK_ALLOW_PRIVATE_NETWORKS'] as const) {
+    if (config[key]) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: [key],
+        message: 'must be false in production (it exposes internal services to webhook URLs)',
+      });
+    }
+  }
 
   if (!config.REDIS_URL) {
     ctx.addIssue({

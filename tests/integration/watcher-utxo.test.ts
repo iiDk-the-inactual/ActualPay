@@ -28,7 +28,7 @@ import { createInvoice, getInvoice, type InvoiceView } from '@actualpay/payments
 import { createLogger } from '@actualpay/shared';
 import { confirmWallet, createWallet, deriveDeposit } from '@actualpay/wallets';
 import { runCycle } from '@actualpay/watcher';
-import { createOrganization, createTestDb, resetDatabase } from './helpers';
+import { createOrganization, createTestDb, eventually, resetDatabase } from './helpers';
 
 const rawUrl = process.env['UTXO_REGTEST_URL'];
 const chain = process.env['UTXO_REGTEST_CHAIN'] ?? 'bitcoin';
@@ -117,7 +117,12 @@ describe.skipIf(!rawUrl || chain !== 'bitcoin')('worker against bitcoind regtest
     if (info.chain !== 'regtest') throw new Error('UTXO_REGTEST_URL must point at a regtest node');
     await rpc('createwallet', [minerWallet]);
     minerAddress = (await rpc('getnewaddress', ['', 'bech32'], minerWallet)) as string;
-    await mine(101);
+    await mine(110);
+    const funds = (await rpc('getbalance', [], minerWallet)) as number;
+    if (funds < 0.1)
+      throw new Error(
+        'The regtest miner wallet has too little to fund these tests: restart bitcoind with a fresh datadir.',
+      );
 
     adapter = new WrappedAdapter({
       chain: 'bitcoin',
@@ -192,8 +197,12 @@ describe.skipIf(!rawUrl || chain !== 'bitcoin')('worker against bitcoind regtest
     );
     await rpc('sendtoaddress', [regtestAddress, '0.01234567'], minerWallet);
 
-    await runCycle(deps());
-    expect((await getInvoice(db, orgId, inv.id)).status).toBe('processing'); // seen in the mempool
+    // Seen in the mempool (the node tells wallets about it asynchronously, so poll).
+    await eventually(async () => {
+      await runCycle(deps());
+      return (await getInvoice(db, orgId, inv.id)).status === 'processing';
+    });
+    expect((await getInvoice(db, orgId, inv.id)).status).toBe('processing');
     expect(await balance()).toBe(0n);
 
     await mine(1);

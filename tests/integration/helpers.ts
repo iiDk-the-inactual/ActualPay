@@ -56,3 +56,22 @@ export async function initChainCursor(
     .onConflict((oc) => oc.columns(['chain', 'network']).doNothing())
     .execute();
 }
+
+/**
+ * Poll until `fn` returns something truthy. Bitcoin Core hands mempool
+ * transactions to wallets asynchronously, so a scan issued milliseconds after
+ * `sendtoaddress` can legitimately miss it; the next scan sees it.
+ */
+export async function eventually<T>(
+  fn: () => Promise<T | undefined | null | false>,
+  timeoutMs = 8_000,
+  intervalMs = 50,
+): Promise<T> {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const value = await fn();
+    if (value) return value;
+    if (Date.now() > deadline) throw new Error('eventually: condition not met in time');
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+}

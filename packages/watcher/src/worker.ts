@@ -9,6 +9,13 @@ import { randomUUID } from 'node:crypto';
 import { BitcoinCoreAdapter, type WatchOnlyAdapter } from '@actualpay/chains';
 import type { Db } from '@actualpay/database';
 import { expireInvoices } from '@actualpay/payments';
+import {
+  deliverDue,
+  type DeliverySummary,
+  type Resolver,
+  type UrlPolicy,
+} from '@actualpay/webhooks';
+import type { SecretBox } from '@actualpay/auth';
 import type { ChainFamily, Logger } from '@actualpay/shared';
 import { runLeased } from './leases';
 import { reconcileOnce } from './reconcile';
@@ -23,6 +30,12 @@ export interface WorkerDeps {
   /** Identifies this worker in lease records. */
   readonly ownerId?: string;
   readonly leaseSeconds?: number;
+  /** Webhook delivery; omitted means webhooks are not sent by this worker. */
+  readonly webhooks?: {
+    readonly box: SecretBox;
+    readonly policy: UrlPolicy;
+    readonly resolver?: Resolver;
+  };
 }
 
 export interface CycleResult {
@@ -30,6 +43,7 @@ export interface CycleResult {
   recheck?: RecheckSummary | { kind: 'lease_held' };
   expired?: number | { kind: 'lease_held' };
   reconciled?: { problems: number } | { kind: 'lease_held' };
+  webhooks?: DeliverySummary | { kind: 'lease_held' };
 }
 
 export async function runCycle(
@@ -77,6 +91,21 @@ export async function runCycle(
     expireInvoices(db, options.now ? { now: options.now } : {}),
   );
   result.expired = expire.ran ? expire.value : { kind: 'lease_held' };
+
+  if (deps.webhooks) {
+    const { box, policy, resolver } = deps.webhooks;
+    const sent = await runLeased(db, lease('webhooks'), () =>
+      deliverDue({
+        db,
+        box,
+        logger,
+        policy,
+        ...(resolver ? { resolver } : {}),
+        ...(options.now ? { now: options.now } : {}),
+      }),
+    );
+    result.webhooks = sent.ran ? sent.value : { kind: 'lease_held' };
+  }
 
   if (options.reconcile !== false) {
     const reconcile = await runLeased(db, lease('reconcile'), () =>

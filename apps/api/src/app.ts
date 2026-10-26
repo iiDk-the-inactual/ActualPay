@@ -23,6 +23,7 @@ import { registerInvoiceRoutes } from './routes/invoices';
 import { registerMeRoutes } from './routes/me';
 import { registerOrganizationRoutes } from './routes/organizations';
 import { registerWalletRoutes } from './routes/wallets';
+import { registerWebhookRoutes } from './routes/webhooks';
 
 export interface BuildAppOptions {
   readonly config: AppConfig;
@@ -129,6 +130,7 @@ export async function buildApp(
   registerOrganizationRoutes(app, ctx);
   registerWalletRoutes(app, ctx);
   registerInvoiceRoutes(app, ctx);
+  registerWebhookRoutes(app, ctx);
 
   return { app, ctx };
 }
