@@ -14,6 +14,7 @@
     "@actualpay/config": "0.1.0",
     "@actualpay/database": "0.1.0",
     "@actualpay/email": "0.1.0",
+    "@actualpay/payments": "0.1.0",
     "@actualpay/shared": "0.1.0",
     "@actualpay/wallets": "0.1.0",
     "@fastify/cookie": "^11.1.2",

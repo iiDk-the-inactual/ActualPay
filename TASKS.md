@@ -29,7 +29,8 @@ Each phase appends a new section; earlier sections stay as regression checks.
 | 2     | Auth, organizations, RBAC, API keys, HTTP API   | Delivered, needs local verification (below) |
 | 3     | Watch-only chain adapters                       | Delivered, needs local verification (below) |
 | 4     | Wallets and address derivation                  | Delivered, needs local verification (below) |
-| 5–13  | See docs/architecture.md                        | Not started                                 |
+| 5     | Invoices, payment links, payment state machine  | Delivered, needs local verification (below) |
+| 6–13  | See docs/architecture.md                        | Not started                                 |
 
 ---
 
@@ -409,6 +410,36 @@ Run against the dev database; each must **fail**:
 - No public "new address" endpoint; addresses are issued by invoices (Phase 5).
 - Change addresses (`/1/*`) are unused until Phase 8.
 - Watchers for archived wallets arrive with Phase 6.
+
+---
+
+## Phase 5: Invoices and payments
+
+Read `docs/payments.md` first. Phase 5 adds migration `0006_invoices`, the
+`packages/payments` package and the invoice, payment and payment-link
+endpoints. Testnets only.
+
+- [ ] `npm run db:migrate` prints `applied: 0006_invoices`.
+- [ ] `npm run verify` passes with **108 unit tests** and **127 integration tests**
+      (none skipped when the chain test nodes run).
+- [ ] With the API running and a confirmed testnet ETH wallet (Phase 4 manual
+      steps): create an invoice with an API key, open `hostedUrl`'s public data
+      at `GET /v1/public/invoices/:publicId` and check the address and the
+      `paymentUri` open correctly in your wallet app with the amount filled in.
+- [ ] Create a payment link, call its public `POST …/invoices` more than
+      `maxOpenInvoices` times: the extra calls return 429.
+- [ ] Confirm the public views never show `externalId` or `metadata`.
+- [ ] Manual DB guarantees (each must fail): `UPDATE invoices SET amount_due = 1;`
+      (immutable), `DELETE FROM payments;`, `DELETE FROM domain_events;`
+      (append-only), `UPDATE payments SET status = 'pending' WHERE status = 'confirmed';`
+      (cannot go from).
+
+### Phase 5 known limitations (do not "fix" without asking)
+
+- No fiat pricing: amounts are in the crypto asset.
+- A reversal the books cannot absorb throws; operator booking comes in Phase 6.
+- Chain watchers (Phase 6) are what feed payments in; until then payments
+  only arrive through the `recordObservation` function.
 
 ---
 

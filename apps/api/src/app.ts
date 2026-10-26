@@ -19,6 +19,7 @@ import { registerErrorHandling } from './http/errors';
 import { resilientStore } from './http/rate-limit-store';
 import { registerAuthRoutes } from './routes/auth';
 import { registerHealthRoutes } from './routes/health';
+import { registerInvoiceRoutes } from './routes/invoices';
 import { registerMeRoutes } from './routes/me';
 import { registerOrganizationRoutes } from './routes/organizations';
 import { registerWalletRoutes } from './routes/wallets';
@@ -127,6 +128,7 @@ export async function buildApp(
   registerMeRoutes(app, ctx);
   registerOrganizationRoutes(app, ctx);
   registerWalletRoutes(app, ctx);
+  registerInvoiceRoutes(app, ctx);
 
   return { app, ctx };
 }

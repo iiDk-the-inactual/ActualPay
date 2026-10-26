@@ -255,6 +255,89 @@ export interface DepositAddressesTable {
   created_at: Timestamp;
 }
 
+export type InvoiceStatus =
+  'open' | 'processing' | 'partially_paid' | 'paid' | 'expired' | 'cancelled';
+export type PaymentStatus = 'pending' | 'confirmed' | 'reversed';
+
+export interface PaymentLinksTable {
+  id: Generated<string>;
+  public_id: string;
+  organization_id: string;
+  asset_id: string;
+  amount: Numeric;
+  title: string;
+  description: string | null;
+  invoice_ttl_minutes: ColumnType<number, number | undefined, number>;
+  max_open_invoices: ColumnType<number, number | undefined, number>;
+  active: ColumnType<boolean, boolean | undefined, boolean>;
+  created_by: string;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+}
+
+export interface InvoicesTable {
+  id: Generated<string>;
+  public_id: string;
+  organization_id: string;
+  wallet_id: string;
+  deposit_address_id: string;
+  payment_link_id: string | null;
+  asset_id: string;
+  amount_due: Numeric;
+  amount_confirmed: ColumnType<string, string | bigint | undefined, string | bigint>;
+  amount_pending: ColumnType<string, string | bigint | undefined, string | bigint>;
+  status: ColumnType<InvoiceStatus, InvoiceStatus | undefined, InvoiceStatus>;
+  external_id: string | null;
+  description: string | null;
+  metadata: ColumnType<Record<string, unknown>, string | undefined, string>;
+  expires_at: ColumnType<Date, Date | string, never>;
+  cancelled_at: NullableTimestamp;
+  paid_at: NullableTimestamp;
+  paid_late: ColumnType<boolean, boolean | undefined, boolean>;
+  created_by_type: 'user' | 'api_key' | 'payment_link';
+  created_by_id: string | null;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+}
+
+export interface PaymentsTable {
+  id: Generated<string>;
+  organization_id: string;
+  invoice_id: string;
+  deposit_address_id: string;
+  ref: string;
+  asset_id: string;
+  tx_hash: string;
+  amount: Numeric;
+  counts_toward_invoice: boolean;
+  status: ColumnType<PaymentStatus, PaymentStatus | undefined, PaymentStatus>;
+  epoch: ColumnType<number, number | undefined, number>;
+  block_height: ColumnType<
+    string | null,
+    string | bigint | null | undefined,
+    string | bigint | null
+  >;
+  block_hash: ColumnType<string | null, string | null | undefined, string | null>;
+  confirmations: ColumnType<string, string | bigint | undefined, string | bigint>;
+  deposit_journal_id: ColumnType<string | null, string | null | undefined, string | null>;
+  reversal_journal_id: ColumnType<string | null, string | null | undefined, string | null>;
+  detected_at: Timestamp;
+  confirmed_at: NullableTimestamp;
+  reversed_at: NullableTimestamp;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+}
+
+export interface DomainEventsTable {
+  id: Generated<string>;
+  organization_id: string;
+  type: string;
+  subject_type: string;
+  subject_id: string;
+  payload: ColumnType<Record<string, unknown>, string, never>;
+  occurred_at: Timestamp;
+}
+
 export interface Database {
   organizations: OrganizationsTable;
   assets: AssetsTable;
@@ -273,10 +356,17 @@ export interface Database {
   api_keys: ApiKeysTable;
   wallets: WalletsTable;
   deposit_addresses: DepositAddressesTable;
+  payment_links: PaymentLinksTable;
+  invoices: InvoicesTable;
+  payments: PaymentsTable;
+  domain_events: DomainEventsTable;
 }
 
 export type Organization = Selectable<OrganizationsTable>;
 export type WalletRow = Selectable<WalletsTable>;
+export type InvoiceRow = Selectable<InvoicesTable>;
+export type PaymentRow = Selectable<PaymentsTable>;
+export type PaymentLinkRow = Selectable<PaymentLinksTable>;
 export type DepositAddressRow = Selectable<DepositAddressesTable>;
 export type LedgerAccountRow = Selectable<LedgerAccountsTable>;
 export type LedgerJournalRow = Selectable<LedgerJournalsTable>;

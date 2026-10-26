@@ -100,6 +100,7 @@ packages/
   email/     mailer abstraction, SMTP transport, security emails
   chains/    watch-only chain adapters, address derivation and validation
   wallets/   watch-only wallets, address confirmation and deposit-address allocation
+  payments/  invoices, payment links, payment state machine, ledger postings
 apps/
   api/       Fastify HTTP API (routes, guard chain, idempotency), CLIs
              (admin:create, chain:probe, chain:watch)
@@ -114,7 +115,7 @@ docs/        design and operations documentation
 2. Auth, users, organizations, RBAC, API keys, HTTP API skeleton, idempotency middleware ← **done** (see docs/security-model.md)
 3. Chain adapters (watch-only): BTC, LTC, ETH/ERC-20, TRX/TRC-20, XRPL ← **done** (see docs/chains.md)
 4. Wallets and address derivation ← **done** (see docs/wallets.md)
-5. Invoices, payment links, payment state machine
+5. Invoices, payment links, payment state machine ← **done** (see docs/payments.md)
 6. Chain watchers, confirmations, reorg handling, reconciliation, job system
 7. Webhooks
 8. Signer service and withdrawals
