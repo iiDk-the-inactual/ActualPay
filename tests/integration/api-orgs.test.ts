@@ -226,14 +226,16 @@ describe('API keys', () => {
     const { key, id } = created.json<{ key: string; id: string }>();
     expect(key.startsWith('apk_test_')).toBe(true);
 
+    // The whole secret (it can contain '_'), never a fragment that could match by chance.
+    const secret = key.split('_').slice(3).join('_');
     const list = await owner.request('GET', `/v1/organizations/${orgId}/api-keys`);
-    expect(list.body).not.toContain(key.split('_')[3]!);
+    expect(list.body).not.toContain(secret);
     const stored = await api.db
       .selectFrom('api_keys')
       .select('secret_hash')
       .where('id', '=', id)
       .executeTakeFirstOrThrow();
-    expect(stored.secret_hash).not.toContain(key.split('_')[3]!);
+    expect(stored.secret_hash).not.toContain(secret);
 
     const access = await api.app.inject({
       method: 'GET',

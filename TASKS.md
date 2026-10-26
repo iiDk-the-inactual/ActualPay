@@ -599,6 +599,24 @@ page, and a notification step in the worker. Testnets only.
 
 ---
 
+## Phase 11: Documentation and OpenAPI
+
+Read `docs/api.md`. Phase 11 adds `apps/api/src/openapi.ts`, `GET /v1/openapi.json`,
+`npm run openapi:generate` and the committed `docs/openapi.json`. No migration.
+
+- [ ] `npm run openapi:generate` leaves `git diff docs/openapi.json` empty.
+- [ ] `npm run verify` passes with **224 unit tests** and **268 integration tests**.
+- [ ] Open `docs/openapi.json` in Swagger UI (or Postman → Import) and call an
+      invoice create against a running API with a test key.
+- [ ] Follow `docs/api.md` as a stranger would; note anything that does not work.
+
+### Phase 11 known limitations (do not "fix" without asking)
+
+- Response examples are not generated; schemas are inlined (the file is large).
+- No SDKs. Generate one from the OpenAPI document if you need it.
+
+---
+
 ## Findings log
 
 Record every failure, its root cause, and the fix (file and line), so the
@@ -618,6 +636,7 @@ next phase starts from known-good ground.
 | 2026-10-08 | Phase 2 §3          | Expected counts in the Phase 2 checklist (63 unit, 70 integration) are stale.                                                                                                                         | Phase 3 added tests.                                                                                                                                                                                                                                                                                                                                                                                                                                          | Current counts are 85 unit and 83 integration. Line left unticked.                                                                                                                                                                   |
 | 2026-10-09 | Phase 3 §3 optional | none                                                                                                                                                                                                  | Litecoin Core 0.21.4 regtest (legacy mode; archive SHA256 matches the CI pin): `chain-utxo.test.ts` ran twice, 6 passed each.                                                                                                                                                                                                                                                                                                                                 | None needed.                                                                                                                                                                                                                         |
 | 2026-10-26 | Phase 6/7 regtest   | `chain-utxo.test.ts` failed intermittently with an empty first scan, then with "Insufficient funds"                                                                                                   | (1) Bitcoin Core tells wallets about mempool transactions asynchronously, so a scan issued milliseconds after `sendtoaddress` can miss it (harmless in production: the next scan sees it). (2) Regtest block rewards halve every 150 blocks, so a node that has mined for a long time cannot fund the tests.                                                                                                                                                  | Tests now poll (`eventually`) for first visibility, mine 110 blocks, use smaller amounts, and fail with a clear message when the miner is out of funds. Use a fresh regtest datadir if you ever see that message. No product change. |
+| 2026-10-26 | Phase 11 verify     | `api-orgs.test.ts` "shows the secret once" failed intermittently; the regtest miner ran dry again                                                                                                     | Same `split('_')[3]` fragment pitfall as the unit test; each full verify mines ~550 regtest blocks and rewards halve every 150                                                                                                                                                                                                                                                                                                                                | Compare whole secret. For regtest: `bitcoin-cli stop`, delete `<datadir>/regtest`, start again whenever the "too little" message appears (documented).                                                                               |
 | 2026-10-08 | Phase 3 §6          | `chain:watch` queries node status before parsing `--xpub`, so an xprv is refused only once a node is reachable.                                                                                       | CLI ordering in `apps/api/src/cli/chain-watch.ts`.                                                                                                                                                                                                                                                                                                                                                                                                            | Not changed. Against the regtest node the xprv was refused with `extended PRIVATE key` and the key was not echoed.                                                                                                                   |
 
 ## Open questions

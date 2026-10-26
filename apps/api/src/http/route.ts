@@ -87,6 +87,9 @@ export interface RegisteredRoute {
   readonly tags: readonly string[];
   readonly auth: AuthMode;
   readonly org: true | Permission | undefined;
+  readonly requireMfa: boolean;
+  readonly idempotency: 'optional' | 'required' | undefined;
+  readonly rateLimit: 'auth' | 'api' | undefined;
   readonly schemas: { params?: ZodType; query?: ZodType; body?: ZodType; response: ZodType };
   readonly successStatus: number;
 }
@@ -219,6 +222,9 @@ export function defineRoute<B = undefined, Q = undefined, P = undefined, R = unk
     tags: def.tags,
     auth: def.auth,
     org: def.org,
+    requireMfa: def.requireMfa === true,
+    idempotency: def.idempotency,
+    rateLimit: def.rateLimit,
     schemas: {
       ...(def.params ? { params: def.params } : {}),
       ...(def.query ? { query: def.query } : {}),

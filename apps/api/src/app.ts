@@ -17,6 +17,8 @@ import { deriveKey, SecretBox, type AuthDeps } from '@actualpay/auth';
 import type { ApiContext } from './http/context';
 import { registerErrorHandling } from './http/errors';
 import { resilientStore } from './http/rate-limit-store';
+import { buildOpenApi } from './openapi';
+import { routeRegistry } from './http/route';
 import { registerNotificationRoutes } from './routes/notifications';
 import { registerWebRoutes } from './routes/web';
 import { registerAdminRoutes } from './routes/admin';
@@ -138,6 +140,18 @@ export async function buildApp(
   registerWithdrawalRoutes(app, ctx);
   registerAdminRoutes(app, ctx);
   registerNotificationRoutes(app, ctx);
+  // The machine-readable API description, built from the routes registered above.
+  let spec: string | undefined;
+  app.get('/v1/openapi.json', (_request, reply) => {
+    spec ??= JSON.stringify(
+      buildOpenApi(routeRegistry, {
+        title: `${config.appName} API`,
+        version: '1.0.0',
+        serverUrl: config.publicBaseUrl.toString().replace(/\/$/, ''),
+      }),
+    );
+    return reply.header('Cache-Control', 'public, max-age=300').type('application/json').send(spec);
+  });
   registerWebRoutes(app);
 
   return { app, ctx };

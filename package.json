@@ -38,9 +38,11 @@
     "worker:status": "node --env-file-if-exists=.env --import tsx apps/worker/src/main.ts status",
     "smoke:api": "node --import tsx scripts/smoke-api.ts",
     "chain:probe": "node --env-file-if-exists=.env --import tsx apps/api/src/cli/chain-probe.ts",
-    "chain:watch": "node --env-file-if-exists=.env --import tsx apps/api/src/cli/chain-watch.ts"
+    "chain:watch": "node --env-file-if-exists=.env --import tsx apps/api/src/cli/chain-watch.ts",
+    "openapi:generate": "node --import tsx scripts/generate-openapi.ts"
   },
   "devDependencies": {
+    "@apidevtools/swagger-parser": "^13.1.0",
     "@eslint/js": "^9.39.5",
     "@scure/bip39": "^2.4.0",
     "@types/node": "^22.20.5",

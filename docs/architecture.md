@@ -124,6 +124,6 @@ docs/        design and operations documentation
 8. Signer service and withdrawals ← **done** (see docs/withdrawals.md)
 9. Merchant and admin dashboards ← **done** (see docs/dashboard.md)
 10. Email notifications, operator alerts, optional forwarding ← **done** (see docs/notifications.md)
-11. Documentation and OpenAPI
+11. Documentation and OpenAPI ← **done** (see docs/api.md, docs/openapi.json)
 12. Security hardening, threat model, security test suite
 13. Docker images and production deployment
