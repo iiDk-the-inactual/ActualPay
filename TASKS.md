@@ -549,6 +549,31 @@ It is optional: the default `CUSTODY_MODE=merchant` has no withdrawals at all.
 
 ---
 
+## Phase 9: Dashboards and hosted checkout
+
+Read `docs/dashboard.md` first. Phase 9 adds `apps/web` (static files) and the
+`/app` and `/pay` routes. No migration.
+
+- [ ] `npm run verify` passes with **224 unit tests** and **233 integration tests**.
+- [ ] Start `npm run api:start`, open `http://localhost:3000/app/`: register, verify
+      (the email link or token is in the API log when SMTP is unset), sign in.
+- [ ] Create an organization, add a testnet wallet, confirm the first address
+      against your own wallet app, create an invoice, open its customer link in a
+      private window and pay it on testnet.
+- [ ] Browser dev tools → Network: no request leaves your own origin; Console shows
+      no CSP violations on any page.
+- [ ] Try `<script>alert(1)</script>` as an invoice description: it shows as text.
+- [ ] As a second user with only the `viewer` role, buttons for create/approve are
+      hidden and the API still refuses them.
+- [ ] Optional: run `scripts/web-smoke.mjs` (see docs/dashboard.md).
+
+### Phase 9 known limitations (do not "fix" without asking)
+
+- No ledger/balance view, no payment-link creation form, no QR code, no i18n.
+- The dashboard is English only and has not had an accessibility audit.
+
+---
+
 ## Findings log
 
 Record every failure, its root cause, and the fix (file and line), so the

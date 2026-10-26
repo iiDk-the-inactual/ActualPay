@@ -122,7 +122,7 @@ docs/        design and operations documentation
 6. Chain watchers, confirmations, reorg handling, reconciliation, job system ← **done** (see docs/watcher.md)
 7. Webhooks ← **done** (see docs/webhooks.md)
 8. Signer service and withdrawals ← **done** (see docs/withdrawals.md)
-9. Merchant and admin dashboards
+9. Merchant and admin dashboards ← **done** (see docs/dashboard.md)
 10. Email and optional forwarding
 11. Documentation and OpenAPI
 12. Security hardening, threat model, security test suite

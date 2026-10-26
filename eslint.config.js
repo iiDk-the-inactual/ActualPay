@@ -4,6 +4,8 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   { ignores: ['**/node_modules/**', '**/dist/**', '**/coverage/**', 'eslint.config.js'] },
+  // Browser files are plain JavaScript outside the TypeScript project; tests/integration/web.test.ts guards them.
+  { ignores: ['apps/web/public/**', 'scripts/web-smoke.mjs'] },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   {

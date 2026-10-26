@@ -17,6 +17,7 @@ import { deriveKey, SecretBox, type AuthDeps } from '@actualpay/auth';
 import type { ApiContext } from './http/context';
 import { registerErrorHandling } from './http/errors';
 import { resilientStore } from './http/rate-limit-store';
+import { registerWebRoutes } from './routes/web';
 import { registerAdminRoutes } from './routes/admin';
 import { registerAuthRoutes } from './routes/auth';
 import { registerHealthRoutes } from './routes/health';
@@ -135,6 +136,7 @@ export async function buildApp(
   registerWebhookRoutes(app, ctx);
   registerWithdrawalRoutes(app, ctx);
   registerAdminRoutes(app, ctx);
+  registerWebRoutes(app);
 
   return { app, ctx };
 }
