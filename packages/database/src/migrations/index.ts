@@ -13,6 +13,7 @@ import * as m0006 from './0006_invoices';
 import * as m0007 from './0007_watcher';
 import * as m0008 from './0008_webhooks';
 import * as m0009 from './0009_withdrawals';
+import * as m0010 from './0010_notifications';
 
 export const migrations: Record<string, Migration> = {
   '0001_foundation': m0001,
@@ -24,4 +25,5 @@ export const migrations: Record<string, Migration> = {
   '0007_watcher': m0007,
   '0008_webhooks': m0008,
   '0009_withdrawals': m0009,
+  '0010_notifications': m0010,
 };

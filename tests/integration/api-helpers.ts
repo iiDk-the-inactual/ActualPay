@@ -152,3 +152,17 @@ export async function createOrg(agent: Agent, name = 'Acme'): Promise<string> {
   expect(response.statusCode).toBe(201);
   return response.json<{ id: string }>().id;
 }
+
+/** Turn two-factor authentication on, then sign in again with it so the session is MFA-verified. */
+export async function withMfa(api: TestApi, agent: Agent & { email: string }): Promise<Agent> {
+  const setup = await agent.request('POST', '/v1/me/mfa/totp/setup');
+  const { secret } = setup.json<{ secret: string }>();
+  const confirm = await agent.request('POST', '/v1/me/mfa/totp/confirm', {
+    body: { code: totpCode(secret) },
+  });
+  expect(confirm.statusCode).toBe(200);
+  const fresh = new Agent(api);
+  const { mfaToken } = (await fresh.login(agent.email)).json<{ mfaToken: string }>();
+  expect((await fresh.completeMfa(mfaToken, totpCode(secret, 30_000))).statusCode).toBe(200);
+  return fresh;
+}

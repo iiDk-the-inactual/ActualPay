@@ -25,6 +25,13 @@ import type { SecretBox } from '@actualpay/auth';
 import type { ChainFamily, Logger } from '@actualpay/shared';
 import { runLeased } from './leases';
 import { reconcileOnce } from './reconcile';
+import {
+  alertCriticalIssues,
+  alertDisabledWebhooks,
+  fanOutNotifications,
+  sendDue,
+} from '@actualpay/notifications';
+import type { Mailer } from '@actualpay/email';
 import { recheckPayments, type RecheckSummary } from './recheck';
 import { scanChain, type ScanOutcome } from './scan';
 import { syncUtxoWatch } from './watchsync';
@@ -38,6 +45,13 @@ export interface WorkerDeps {
   readonly leaseSeconds?: number;
   /** Nodes for broadcasting and following withdrawals; omitted means this worker does not handle them. */
   readonly outgoing?: ReadonlyMap<ChainFamily, OutgoingChain>;
+  /** Email notifications and alerts; omitted means this worker sends no email. */
+  readonly notifications?: {
+    readonly mailer: Mailer;
+    readonly appName: string;
+    readonly baseUrl: string;
+    readonly operatorEmail?: string;
+  };
   /** Webhook delivery; omitted means webhooks are not sent by this worker. */
   readonly webhooks?: {
     readonly box: SecretBox;
@@ -52,6 +66,7 @@ export interface CycleResult {
   expired?: number | { kind: 'lease_held' };
   reconciled?: { problems: number } | { kind: 'lease_held' };
   webhooks?: DeliverySummary | { kind: 'lease_held' };
+  notifications?: { queued: number; sent: number } | { kind: 'lease_held' };
   withdrawals?:
     { expired: number; broadcast: number; tracked: OutgoingSummary } | { kind: 'lease_held' };
 }
@@ -136,6 +151,40 @@ export async function runCycle(
       }),
     );
     result.webhooks = sent.ran ? sent.value : { kind: 'lease_held' };
+  }
+
+  if (deps.notifications) {
+    const n = deps.notifications;
+    const run = await runLeased(db, lease('notifications'), async () => {
+      const fan = await fanOutNotifications({
+        db,
+        baseUrl: n.baseUrl,
+        appName: n.appName,
+        ...(options.now ? { now: options.now } : {}),
+      });
+      const alerts =
+        (await alertCriticalIssues({
+          db,
+          operatorEmail: n.operatorEmail,
+          appName: n.appName,
+          baseUrl: n.baseUrl,
+          ...(options.now ? { now: options.now } : {}),
+        })) +
+        (await alertDisabledWebhooks({
+          db,
+          appName: n.appName,
+          baseUrl: n.baseUrl,
+          ...(options.now ? { now: options.now } : {}),
+        }));
+      const sent = await sendDue({
+        db,
+        mailer: n.mailer,
+        logger,
+        ...(options.now ? { now: options.now } : {}),
+      });
+      return { queued: fan.queued + alerts, sent: sent.sent };
+    });
+    result.notifications = run.ran ? run.value : { kind: 'lease_held' };
   }
 
   if (options.reconcile !== false) {

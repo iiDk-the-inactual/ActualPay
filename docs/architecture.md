@@ -123,7 +123,7 @@ docs/        design and operations documentation
 7. Webhooks ← **done** (see docs/webhooks.md)
 8. Signer service and withdrawals ← **done** (see docs/withdrawals.md)
 9. Merchant and admin dashboards ← **done** (see docs/dashboard.md)
-10. Email and optional forwarding
+10. Email notifications, operator alerts, optional forwarding ← **done** (see docs/notifications.md)
 11. Documentation and OpenAPI
 12. Security hardening, threat model, security test suite
 13. Docker images and production deployment

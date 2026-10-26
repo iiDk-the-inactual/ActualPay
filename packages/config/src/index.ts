@@ -74,6 +74,7 @@ export interface AppConfig {
     readonly tron?: { url: string; apiKey?: string };
     readonly xrpl?: { url: string; depositAccount?: string };
   };
+  readonly operatorAlertEmail?: string;
   readonly smtp?: {
     readonly host: string;
     readonly port: number;
@@ -181,6 +182,7 @@ export function loadConfig(env: RawEnv = process.env): AppConfig {
     enabledAssets: c.ENABLED_ASSETS,
     tokenContracts,
     chains: chains,
+    ...(c.OPERATOR_ALERT_EMAIL ? { operatorAlertEmail: c.OPERATOR_ALERT_EMAIL } : {}),
     ...(c.SMTP_HOST && c.SMTP_PORT && c.SMTP_FROM
       ? {
           smtp: {

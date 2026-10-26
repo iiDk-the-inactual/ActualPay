@@ -147,7 +147,11 @@ describe('API key format', () => {
       publicId: generated.publicId,
       secretHash: generated.secretHash,
     });
-    expect(generated.secretHash).not.toContain(generated.key.split('_')[3]!);
+    // The whole secret (everything after the public id), not a fragment: short
+    // fragments can occur in a hex hash by chance.
+    const secret = generated.key.slice(`apk_test_${generated.publicId}_`.length);
+    expect(secret.length).toBeGreaterThan(20);
+    expect(generated.secretHash).not.toContain(secret);
     expect(generateApiKey('mainnet').key.startsWith('apk_live_')).toBe(true);
   });
 

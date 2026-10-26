@@ -15,6 +15,7 @@ import { SecretBox } from '@actualpay/auth';
 import { createChainAdapters, createOutgoingNodes } from '@actualpay/chains';
 import { describeConfig, loadConfig } from '@actualpay/config';
 import { createDb } from '@actualpay/database';
+import { DevLogMailer, SmtpMailer, type Mailer } from '@actualpay/email';
 import { createLogger } from '@actualpay/shared';
 import { listIssues, runCycle, startWorker } from '@actualpay/watcher';
 
@@ -54,6 +55,9 @@ async function main(): Promise<void> {
       return new Set(rows.map((r) => r.address.toLowerCase()));
     },
   });
+  const mailer: Mailer = config.smtp
+    ? new SmtpMailer(config.smtp)
+    : new DevLogMailer(logger, config.env);
   const deps = {
     db,
     logger,
@@ -63,6 +67,12 @@ async function main(): Promise<void> {
     ...(config.custody.mode === 'platform'
       ? { outgoing: createOutgoingNodes(config).byChain }
       : {}),
+    notifications: {
+      mailer,
+      appName: config.appName,
+      baseUrl: config.publicBaseUrl.toString(),
+      ...(config.operatorAlertEmail ? { operatorEmail: config.operatorAlertEmail } : {}),
+    },
     webhooks: {
       box: new SecretBox(config.secrets.encryptionKey, 'webhooks'),
       policy: config.webhooks,

@@ -574,6 +574,31 @@ Read `docs/dashboard.md` first. Phase 9 adds `apps/web` (static files) and the
 
 ---
 
+## Phase 10: Email notifications and alerts
+
+Read `docs/notifications.md` first. Phase 10 adds migration `0010_notifications`,
+the `packages/notifications` package, `/notifications` endpoints, a dashboard
+page, and a notification step in the worker. Testnets only.
+
+- [ ] `npm run db:migrate` prints `applied: 0010_notifications`.
+- [ ] `npm run verify` passes with **224 unit tests** and **262 integration tests**.
+- [ ] Set `SMTP_*` to a real test mailbox and `OPERATOR_ALERT_EMAIL` to yours;
+      restart API and worker.
+- [ ] Dashboard → Notifications: turn "Invoices paid" on, pay a testnet invoice:
+      the mail arrives within one worker interval and contains no secrets.
+- [ ] Request a withdrawal (platform mode): approvers get "needs approval".
+- [ ] Add a forwarding address you control (needs MFA): it receives nothing until you
+      click the confirmation link; after that it receives the chosen kinds.
+- [ ] Open a critical issue (for example stop the signer mid-withdrawal until it
+      needs review): exactly one alert arrives.
+- [ ] Check SPF/DKIM/DMARC on the sending domain with a mail-tester service.
+
+### Phase 10 known limitations (do not "fix" without asking)
+
+- No digest or threshold options; no bounce handling; outbox rows are not purged.
+
+---
+
 ## Findings log
 
 Record every failure, its root cause, and the fix (file and line), so the

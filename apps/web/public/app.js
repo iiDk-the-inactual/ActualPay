@@ -1487,6 +1487,160 @@ async function securityPage() {
   await loadSessions();
 }
 
+async function verifyForwardView() {
+  const box = noticeBox();
+  authCard('Confirm forwarding', box, el('p', { class: 'muted', text: 'Working…' }));
+  const ok = await attempt(box, () =>
+    api('POST', '/v1/notification-forwards/confirm', { token: tokenFromHash() }),
+  );
+  authCard(
+    'Confirm forwarding',
+    box,
+    ok
+      ? el('p', {
+          text: 'Done. This address will now receive the notifications that were chosen. You can close this page.',
+        })
+      : null,
+  );
+}
+
+async function notificationsPage() {
+  const box = noticeBox();
+  shell('Notifications', box);
+  const main = root.querySelector('main');
+  const prefs = el('div', { class: 'card' });
+  const fwds = el('div', { class: 'card' });
+  async function load() {
+    const res = await attempt(box, () => api('GET', orgPath('/notifications')));
+    clear(prefs);
+    clear(fwds);
+    if (!res) return;
+    prefs.append(
+      table(
+        [
+          { title: 'Email me about', cell: (p) => p.label },
+          {
+            title: 'Status',
+            cell: (p) =>
+              p.applicable
+                ? badge(p.enabled ? 'active' : 'disabled')
+                : el('span', { class: 'muted', text: 'not for your role' }),
+          },
+          {
+            title: '',
+            cell: (p) =>
+              p.applicable
+                ? el('button', {
+                    class: 'secondary',
+                    text: p.enabled ? 'Turn off' : 'Turn on',
+                    onclick: async () => {
+                      if (
+                        await attempt(box, () =>
+                          api('PUT', orgPath(`/notifications/preferences/${p.kind}`), {
+                            enabled: !p.enabled,
+                          }),
+                        )
+                      )
+                        await load();
+                    },
+                  })
+                : null,
+          },
+        ],
+        res.preferences,
+      ),
+    );
+    fwds.append(
+      table(
+        [
+          { title: 'Address', cell: (f) => f.email },
+          { title: 'Kinds', cell: (f) => f.kinds.join(', ') },
+          { title: 'Status', cell: (f) => badge(f.status === 'active' ? 'active' : 'pending') },
+          {
+            title: '',
+            cell: (f) =>
+              can('settings:manage')
+                ? el('button', {
+                    class: 'danger',
+                    text: 'Remove',
+                    onclick: async () => {
+                      if (
+                        (await attempt(box, () =>
+                          api('DELETE', orgPath(`/notification-forwards/${f.id}`)),
+                        )) !== undefined
+                      )
+                        await load();
+                    },
+                  })
+                : null,
+          },
+        ],
+        res.forwards,
+        'No forwarding addresses.',
+      ),
+    );
+  }
+  main.append(el('h2', { text: 'Your notifications' }), prefs);
+  main.append(el('h2', { text: 'Forward to another address' }), fwds);
+  if (can('settings:manage')) {
+    const kinds = res_kinds.map((k) =>
+      el(
+        'label',
+        { class: 'check' },
+        el('input', { type: 'checkbox', name: 'kind', value: k[0], checked: k[0] !== 'payments' }),
+        k[1],
+      ),
+    );
+    const form = el(
+      'form',
+      {
+        onsubmit: async (event) => {
+          event.preventDefault();
+          const picked = [...form.querySelectorAll('input[name=kind]:checked')].map((i) => i.value);
+          const r = await attempt(box, () =>
+            api('POST', orgPath('/notification-forwards'), {
+              email: formData(form).email,
+              kinds: picked,
+            }),
+          );
+          if (r) {
+            show(
+              box,
+              'ok',
+              'We emailed that address a confirmation link. Nothing is forwarded until they confirm.',
+            );
+            form.reset();
+            await load();
+          }
+        },
+      },
+      field('Email address', 'email', { type: 'email', required: true }),
+      el('div', { class: 'row' }, kinds),
+      el('button', { type: 'submit', text: 'Add forwarding address' }),
+    );
+    main.append(
+      el(
+        'div',
+        { class: 'card' },
+        form,
+        el('p', {
+          class: 'muted',
+          text: 'Needs two-factor authentication. The address owner must confirm by clicking a link before anything is sent.',
+        }),
+      ),
+    );
+  }
+  await load();
+}
+
+const res_kinds = [
+  ['payments', 'Invoices paid'],
+  ['payment_problems', 'Payment problems'],
+  ['withdrawals', 'Withdrawals'],
+  ['security', 'Security changes'],
+  ['webhooks', 'Webhook problems'],
+];
+
 async function adminPage() {
   const box = noticeBox();
   shell('Platform administration', box);
@@ -1737,7 +1891,7 @@ const PUBLIC = {
 async function route() {
   const hash = location.hash || '#/';
   const path = hash.split('?')[0];
-  if (PUBLIC[path] && (!state.me || path === '#/verify' || path === '#/reset'))
+  if (PUBLIC[path] && (!state.me || ['#/verify', '#/reset', '#/verify-forward'].includes(path)))
     return void (await PUBLIC[path]());
   if (!state.me) return void loginView();
   if (path === '#/accept') return void (await acceptView());

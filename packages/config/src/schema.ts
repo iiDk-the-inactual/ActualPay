@@ -120,6 +120,8 @@ export const rawConfigSchema = z.object({
   SMTP_USERNAME: nonEmpty.optional(),
   SMTP_PASSWORD: nonEmpty.optional(),
   SMTP_FROM: nonEmpty.email().optional(),
+  // Receives critical operational alerts (money-related issues). Strongly recommended.
+  OPERATOR_ALERT_EMAIL: nonEmpty.email().optional(),
 
   TRUST_PROXY: booleanString.default('false'),
 

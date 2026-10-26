@@ -433,6 +433,62 @@ export interface WebhookDeliveriesTable {
   created_at: Timestamp;
 }
 
+export type NotificationKind =
+  'payments' | 'payment_problems' | 'withdrawals' | 'security' | 'webhooks';
+
+export interface NotificationPreferencesTable {
+  user_id: string;
+  organization_id: string;
+  kind: NotificationKind;
+  enabled: ColumnType<boolean, boolean, boolean>;
+  updated_at: ColumnType<Date, Date | string | undefined, never>;
+}
+
+export interface NotificationForwardsTable {
+  id: Generated<string>;
+  organization_id: string;
+  email: string;
+  kinds: ColumnType<NotificationKind[], NotificationKind[], never>;
+  status: ColumnType<
+    'pending' | 'active' | 'removed',
+    'pending' | 'active' | undefined,
+    'pending' | 'active' | 'removed'
+  >;
+  token_hash: ColumnType<string | null, string | null | undefined, string | null>;
+  token_expires_at: ColumnType<Date | null, Date | string | null | undefined, Date | string | null>;
+  verified_at: ColumnType<Date | null, Date | string | null | undefined, Date | string | null>;
+  created_by: string;
+  created_at: Timestamp;
+}
+
+export interface NotificationCursorTable {
+  id: number;
+  last_event_id: ColumnType<string, string | number | bigint | undefined, string | number | bigint>;
+  last_audit_id: ColumnType<string, string | number | bigint | undefined, string | number | bigint>;
+  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
+}
+
+export interface EmailOutboxTable {
+  id: Generated<string>;
+  kind: string;
+  organization_id: string | null;
+  to_address: string;
+  subject: string;
+  body: string;
+  dedupe_key: string;
+  status: ColumnType<
+    'pending' | 'sent' | 'failed',
+    'pending' | undefined,
+    'pending' | 'sent' | 'failed'
+  >;
+  attempts: ColumnType<number, number | undefined, number>;
+  next_attempt_at: ColumnType<Date, Date | string | undefined, Date | string>;
+  locked_until: ColumnType<Date | null, Date | string | null | undefined, Date | string | null>;
+  last_error: ColumnType<string | null, string | null | undefined, string | null>;
+  created_at: Timestamp;
+  sent_at: ColumnType<Date | null, Date | string | null | undefined, Date | string | null>;
+}
+
 export type WithdrawalStatus =
   | 'pending_approval'
   | 'approved'
@@ -572,6 +628,10 @@ export interface Database {
   withdrawal_destinations: WithdrawalDestinationsTable;
   withdrawal_policy_versions: WithdrawalPolicyVersionsTable;
   withdrawals: WithdrawalsTable;
+  notification_preferences: NotificationPreferencesTable;
+  notification_forwards: NotificationForwardsTable;
+  notification_cursor: NotificationCursorTable;
+  email_outbox: EmailOutboxTable;
 }
 
 export type Organization = Selectable<OrganizationsTable>;
