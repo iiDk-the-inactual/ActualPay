@@ -16,7 +16,7 @@ import {
   jsonRpc,
   parseExtendedPublicKey,
 } from '@actualpay/chains';
-import { eventually } from './helpers';
+import { eventually, sharedRegtestMiner } from './helpers';
 
 const rawUrl = process.env['UTXO_REGTEST_URL'];
 const chain = (process.env['UTXO_REGTEST_CHAIN'] ?? 'bitcoin') as 'bitcoin' | 'litecoin';
@@ -29,7 +29,7 @@ describe.skipIf(!rawUrl)(`${chain} Core adapter (regtest)`, () => {
     jsonRpc(wallet ? `${base}/wallet/${wallet}` : base, method, params, { headers: auth });
 
   const walletName = `ap_watch_${randomBytes(4).toString('hex')}`;
-  const minerWallet = `ap_miner_${randomBytes(4).toString('hex')}`;
+  let minerWallet = '';
   const account = parseExtendedPublicKey(
     HDKey.fromMasterSeed(randomBytes(32)).derive("m/84'/1'/0'").publicExtendedKey,
   );
@@ -49,17 +49,10 @@ describe.skipIf(!rawUrl)(`${chain} Core adapter (regtest)`, () => {
     const chainInfo = (await rpc('getblockchaininfo')) as { chain: string };
     if (chainInfo.chain !== 'regtest')
       throw new Error('UTXO_REGTEST_URL must point at a regtest node');
-    await rpc('createwallet', [minerWallet]);
-    minerAddress = (await rpc('getnewaddress', ['', 'bech32'], minerWallet)) as string;
-    // 110 blocks leave ten mature coinbases to spend. Regtest rewards halve every 150
-    // blocks, so on a node that has mined for a very long time the miner can no longer
-    // fund these tests: a fresh datadir fixes it.
-    await mine(110);
-    const funds = (await rpc('getbalance', [], minerWallet)) as number;
-    if (funds < 0.6)
-      throw new Error(
-        'The regtest miner wallet has too little to fund these tests: restart bitcoind with a fresh datadir.',
-      );
+    ({ wallet: minerWallet, address: minerAddress } = await sharedRegtestMiner(
+      (m, p, w) => rpc(m, p, w),
+      0.6,
+    ));
   });
 
   it('creates a watch-only descriptor wallet and refuses wallets with private keys', async () => {

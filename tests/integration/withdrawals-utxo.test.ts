@@ -27,7 +27,7 @@ import {
   trackBroadcasts,
   type WithdrawalConfig,
 } from '@actualpay/withdrawals';
-import { createTestDb, eventually, resetDatabase } from './helpers';
+import { createTestDb, eventually, resetDatabase, sharedRegtestMiner } from './helpers';
 import {
   enablePolicy,
   meta,
@@ -62,7 +62,7 @@ describe.skipIf(!rawUrl || chain !== 'bitcoin')('withdrawals against bitcoind re
   const auth = basicAuth(user, pass);
   const rpc = (method: string, params: unknown[] = [], wallet?: string) =>
     jsonRpc(wallet ? `${base}/wallet/${wallet}` : base, method, params, { headers: auth });
-  const minerWallet = `ap_wd_miner_${randomBytes(4).toString('hex')}`;
+  let minerWallet = '';
   const receiverWallet = `ap_wd_recv_${randomBytes(4).toString('hex')}`;
 
   class RegtestNode extends UtxoNode {
@@ -85,15 +85,12 @@ describe.skipIf(!rawUrl || chain !== 'bitcoin')('withdrawals against bitcoind re
   beforeAll(async () => {
     const info = (await rpc('getblockchaininfo')) as { chain: string };
     if (info.chain !== 'regtest') throw new Error('UTXO_REGTEST_URL must point at a regtest node');
-    await rpc('createwallet', [minerWallet]);
     await rpc('createwallet', [receiverWallet]);
-    minerAddress = (await rpc('getnewaddress', ['', 'bech32'], minerWallet)) as string;
     receiverAddress = (await rpc('getnewaddress', ['', 'bech32'], receiverWallet)) as string;
-    await mine(110);
-    if (((await rpc('getbalance', [], minerWallet)) as number) < 0.1)
-      throw new Error(
-        'The regtest miner wallet has too little: restart bitcoind with a fresh datadir.',
-      );
+    ({ wallet: minerWallet, address: minerAddress } = await sharedRegtestMiner(
+      (m, p, w) => rpc(m, p, w),
+      0.1,
+    ));
     keystore = unlockKeystore(
       createKeystore({ passphrase: 'a long test passphrase', network: 'testnet', scryptN: 2 ** 12 })
         .file,

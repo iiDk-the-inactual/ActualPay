@@ -126,4 +126,4 @@ docs/        design and operations documentation
 10. Email notifications, operator alerts, optional forwarding ← **done** (see docs/notifications.md)
 11. Documentation and OpenAPI ← **done** (see docs/api.md, docs/openapi.json)
 12. Security hardening, threat model, security test suite ← **done** (see docs/threat-model.md)
-13. Docker images and production deployment
+13. Docker images and production deployment ← **done** (see docs/deployment.md)

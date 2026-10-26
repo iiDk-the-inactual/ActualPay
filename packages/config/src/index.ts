@@ -12,6 +12,9 @@ import { resolveFileSecrets, type RawEnv } from './env-source';
 export { APP_ENVS, type AppEnv } from './schema';
 export { resolveFileSecrets } from './env-source';
 
+/** Every environment variable the application reads (without the `_FILE` form). */
+export const CONFIG_KEYS: readonly string[] = Object.keys(rawConfigSchema.shape);
+
 export class ConfigError extends Error {
   readonly issues: readonly string[];
   constructor(issues: readonly string[]) {

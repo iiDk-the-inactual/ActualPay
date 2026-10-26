@@ -9,11 +9,17 @@
  * markup, so API data cannot turn into script.
  */
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { FastifyInstance, FastifyReply } from 'fastify';
 
-const ROOT = fileURLToPath(new URL('../../../web/public/', import.meta.url));
+/**
+ * From source the files are at apps/web/public; the production bundle (scripts/build.mjs)
+ * puts them in dist/web next to the entry point. Use whichever exists.
+ */
+const ROOT = [new URL('../../../web/public/', import.meta.url), new URL('./web/', import.meta.url)]
+  .map((url) => fileURLToPath(url))
+  .find((dir) => existsSync(`${dir}index.html`)) as string;
 
 const ASSETS: Readonly<Record<string, { file: string; type: string }>> = {
   'app.js': { file: 'app.js', type: 'text/javascript; charset=utf-8' },

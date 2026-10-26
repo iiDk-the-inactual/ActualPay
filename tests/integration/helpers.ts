@@ -75,3 +75,35 @@ export async function eventually<T>(
     await new Promise((resolve) => setTimeout(resolve, intervalMs));
   }
 }
+
+type Rpc = (method: string, params?: unknown[], wallet?: string) => Promise<unknown>;
+
+/**
+ * One persistent miner wallet shared by every regtest test file. Block rewards
+ * halve every 150 blocks, so a fresh miner per file ran a long-lived regtest
+ * node dry within a few runs; mining only when the shared wallet needs coins
+ * makes a node last essentially forever. Files run one after another, so
+ * sharing is safe.
+ */
+export async function sharedRegtestMiner(
+  rpc: Rpc,
+  requiredCoins: number,
+): Promise<{ wallet: string; address: string }> {
+  const wallet = 'ap_shared_miner';
+  const loaded = (await rpc('listwallets')) as string[];
+  if (!loaded.includes(wallet)) {
+    try {
+      await rpc('loadwallet', [wallet]);
+    } catch {
+      await rpc('createwallet', [wallet]);
+    }
+  }
+  const address = (await rpc('getnewaddress', ['', 'bech32'], wallet)) as string;
+  const balance = async () => Number(await rpc('getbalance', [], wallet));
+  if ((await balance()) < requiredCoins) await rpc('generatetoaddress', [101, address]);
+  if ((await balance()) < requiredCoins)
+    throw new Error(
+      'The regtest miner wallet has too little to fund these tests: restart bitcoind with a fresh datadir.',
+    );
+  return { wallet, address };
+}

@@ -28,7 +28,13 @@ import { createInvoice, getInvoice, type InvoiceView } from '@actualpay/payments
 import { createLogger } from '@actualpay/shared';
 import { confirmWallet, createWallet, deriveDeposit } from '@actualpay/wallets';
 import { runCycle } from '@actualpay/watcher';
-import { createOrganization, createTestDb, eventually, resetDatabase } from './helpers';
+import {
+  createOrganization,
+  createTestDb,
+  eventually,
+  resetDatabase,
+  sharedRegtestMiner,
+} from './helpers';
 
 const rawUrl = process.env['UTXO_REGTEST_URL'];
 const chain = process.env['UTXO_REGTEST_CHAIN'] ?? 'bitcoin';
@@ -57,7 +63,7 @@ describe.skipIf(!rawUrl || chain !== 'bitcoin')('worker against bitcoind regtest
     jsonRpc(wallet ? `${base}/wallet/${wallet}` : base, method, params, { headers: auth });
 
   const watchWallet = `ap_e2e_${randomBytes(4).toString('hex')}`;
-  const minerWallet = `ap_e2eminer_${randomBytes(4).toString('hex')}`;
+  let minerWallet = '';
   const seed = randomBytes(32);
   const accountXpub = HDKey.fromMasterSeed(seed, {
     private: 0x04358394,
@@ -115,14 +121,10 @@ describe.skipIf(!rawUrl || chain !== 'bitcoin')('worker against bitcoind regtest
   beforeAll(async () => {
     const info = (await rpc('getblockchaininfo')) as { chain: string };
     if (info.chain !== 'regtest') throw new Error('UTXO_REGTEST_URL must point at a regtest node');
-    await rpc('createwallet', [minerWallet]);
-    minerAddress = (await rpc('getnewaddress', ['', 'bech32'], minerWallet)) as string;
-    await mine(110);
-    const funds = (await rpc('getbalance', [], minerWallet)) as number;
-    if (funds < 0.1)
-      throw new Error(
-        'The regtest miner wallet has too little to fund these tests: restart bitcoind with a fresh datadir.',
-      );
+    ({ wallet: minerWallet, address: minerAddress } = await sharedRegtestMiner(
+      (m, p, w) => rpc(m, p, w),
+      0.1,
+    ));
 
     adapter = new WrappedAdapter({
       chain: 'bitcoin',

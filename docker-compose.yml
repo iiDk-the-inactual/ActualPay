@@ -1,5 +1,5 @@
 # Local development services only. NOT a production deployment:
-# see docs/deployment.md (Phase 13) for that. Ports are bound to 127.0.0.1
+# see docs/deployment.md and deploy/ for that. Ports are bound to 127.0.0.1
 # so these databases are never exposed to your network.
 name: actualpay-dev
 

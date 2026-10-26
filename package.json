@@ -39,7 +39,8 @@
     "smoke:api": "node --import tsx scripts/smoke-api.ts",
     "chain:probe": "node --env-file-if-exists=.env --import tsx apps/api/src/cli/chain-probe.ts",
     "chain:watch": "node --env-file-if-exists=.env --import tsx apps/api/src/cli/chain-watch.ts",
-    "openapi:generate": "node --import tsx scripts/generate-openapi.ts"
+    "openapi:generate": "node --import tsx scripts/generate-openapi.ts",
+    "build": "node scripts/build.mjs"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^13.1.0",
@@ -48,12 +49,14 @@
     "@types/node": "^22.20.5",
     "@types/nodemailer": "^8.0.2",
     "@types/pg": "^8.23.1",
+    "esbuild": "^0.28.2",
     "eslint": "^9.39.5",
     "otpauth": "^9.5.2",
     "prettier": "^3.9.9",
     "tsx": "^4.23.15",
     "typescript": "~5.8",
     "typescript-eslint": "^8.71.0",
-    "vitest": "^3.2.7"
+    "vitest": "^3.2.7",
+    "yaml": "^2.9.1"
   }
 }

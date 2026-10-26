@@ -62,5 +62,25 @@ jobs:
       - run: npm test
       - run: npm run test:integration
       - run: npm run licenses:check
+      - name: Production bundle builds
+        run: npm run build
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
+
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the production image
+        run: docker build -t actualpay:ci .
+      - name: Runs as an unprivileged user
+        run: test "$(docker run --rm actualpay:ci id -u)" != "0"
+      - name: Contains no TypeScript loader or dev tools
+        run: "! docker run --rm actualpay:ci sh -c 'test -e node_modules/tsx || test -e node_modules/vitest || test -e node_modules/esbuild'"
+      - name: Fails closed without configuration
+        run: |
+          if docker run --rm actualpay:ci node dist/api.mjs > out.txt 2>&1; then
+            echo "API started without configuration"; exit 1
+          fi
+          grep -q "SESSION_SECRET" out.txt

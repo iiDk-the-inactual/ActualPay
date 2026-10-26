@@ -8,3 +8,11 @@ coverage/
 .DS_Store
 secrets/
 backups/
+
+# Redis dump files created when a local redis runs in the project directory
+dump.rdb
+*.rdb
+
+# Deployment secrets and env files
+deploy/secrets/
+deploy/.env

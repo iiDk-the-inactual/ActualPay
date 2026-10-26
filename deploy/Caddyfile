@@ -1,0 +1,34 @@
+# TLS (automatic certificates), HTTPS-only, and the only public entry point.
+{
+	email {$ACME_EMAIL}
+}
+
+{$ACTUALPAY_DOMAIN} {
+	encode zstd gzip
+
+	# The API sets its own security headers; add transport-level ones here.
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+
+	# Refuse oversized bodies before they reach the application (it allows 100 KB).
+	request_body {
+		max_size 200KB
+	}
+
+	# Internal endpoints are not for the internet.
+	@internal path /health/*
+	respond @internal 404
+
+	reverse_proxy api:3000 {
+		# Pass the real client address; the API trusts only this proxy (TRUST_PROXY=true).
+		header_up X-Forwarded-For {remote_host}
+		health_uri /health/live
+		health_interval 15s
+		transport http {
+			dial_timeout 5s
+			response_header_timeout 35s
+		}
+	}
+}

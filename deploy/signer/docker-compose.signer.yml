@@ -1,0 +1,67 @@
+# The signer, on its OWN host. It never listens on a port and never broadcasts.
+# It needs outbound access only to PostgreSQL (the database host) and your own
+# chain nodes (for fee rates and balances).
+#
+# One-time on this host (never in CI, never in the main compose stack):
+#   docker compose -f deploy/signer/docker-compose.signer.yml run --rm signer node dist/signer.mjs init
+# prints the 24-word recovery phrase ONCE and the hot-wallet addresses. Write the
+# words on paper, store offline in two places. Then register the addresses as an
+# MFA platform administrator (docs/withdrawals.md) and run:
+#   docker compose -f deploy/signer/docker-compose.signer.yml up -d
+name: actualpay-signer
+
+services:
+  signer:
+    image: ${ACTUALPAY_IMAGE:?}
+    command: ['node', 'dist/signer.mjs', 'start']
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    pids_limit: 128
+    healthcheck: { disable: true }
+    environment:
+      APP_ENV: production
+      NETWORK_MODE: mainnet
+      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:?}
+      ENABLED_ASSETS: ${ENABLED_ASSETS:?}
+      CUSTODY_MODE: platform
+      DATABASE_URL_FILE: /run/secrets/database_app_url
+      # The shared configuration requires a Redis URL in production; the signer never connects to it.
+      REDIS_URL: redis://unused.invalid:6379
+      SESSION_SECRET_FILE: /run/secrets/session_secret
+      ENCRYPTION_KEY_FILE: /run/secrets/encryption_key
+      WITHDRAWAL_SEAL_KEY_FILE: /run/secrets/withdrawal_seal_key
+      SIGNER_KEYSTORE_PATH: /keystore/keystore.json
+      SIGNER_PASSPHRASE_FILE: /run/secrets/signer_passphrase
+      ETHEREUM_RPC_URL: ${ETHEREUM_RPC_URL:-}
+      BITCOIN_RPC_URL: ${BITCOIN_RPC_URL:-}
+      BITCOIN_RPC_USERNAME: ${BITCOIN_RPC_USERNAME:-}
+      BITCOIN_RPC_PASSWORD_FILE: /run/secrets/bitcoin_rpc_password
+      SMTP_HOST: ${SMTP_HOST:?}
+      SMTP_PORT: ${SMTP_PORT:?}
+      SMTP_FROM: ${SMTP_FROM:?}
+    volumes:
+      - keystore:/keystore
+    secrets:
+      - database_app_url
+      - session_secret
+      - encryption_key
+      - withdrawal_seal_key
+      - signer_passphrase
+      - bitcoin_rpc_password
+    logging:
+      driver: json-file
+      options: { max-size: '20m', max-file: '10' }
+
+volumes:
+  keystore:
+
+secrets:
+  database_app_url: { file: ./secrets/database_app_url }
+  session_secret: { file: ./secrets/session_secret }
+  encryption_key: { file: ./secrets/encryption_key }
+  withdrawal_seal_key: { file: ./secrets/withdrawal_seal_key }
+  signer_passphrase: { file: ./secrets/signer_passphrase }
+  bitcoin_rpc_password: { file: ./secrets/bitcoin_rpc_password }

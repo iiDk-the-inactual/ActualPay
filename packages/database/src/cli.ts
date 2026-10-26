@@ -4,6 +4,7 @@
  * migrations can run before chain RPC and other services are configured.
  *
  *   migrate   apply pending migrations, then sync the asset registry
+ *   grant     give the least-privilege application role its rights (see grants.ts)
  *   status    list applied and pending migrations
  *
  * There is deliberately no "down" command: rolling back migrations on a
@@ -11,13 +12,14 @@
  */
 import { resolveFileSecrets } from '@actualpay/config';
 import { createDb } from './client';
+import { grantAppRole } from './grants';
 import { createMigrator, migrateToLatest } from './migrate';
 
 async function main(): Promise<number> {
   const command = process.argv[2];
   let env: Record<string, string>;
   try {
-    env = resolveFileSecrets(process.env, ['DATABASE_URL', 'DATABASE_SSL']);
+    env = resolveFileSecrets(process.env, ['DATABASE_URL', 'DATABASE_SSL', 'DATABASE_APP_ROLE']);
   } catch (error) {
     console.error(error instanceof Error ? error.message : error);
     return 2;
@@ -42,6 +44,21 @@ async function main(): Promise<number> {
         for (const r of applied)
           console.log(`${r.status === 'Success' ? 'applied' : r.status}: ${r.migrationName}`);
         console.log('Asset registry verified.');
+        const appRole = env['DATABASE_APP_ROLE'];
+        if (appRole) {
+          await grantAppRole(db, appRole);
+          console.log(`Privileges for role ${appRole} applied.`);
+        }
+        return 0;
+      }
+      case 'grant': {
+        const role = process.argv[3] ?? env['DATABASE_APP_ROLE'];
+        if (!role) {
+          console.error('Usage: cli.ts grant <role>');
+          return 2;
+        }
+        await grantAppRole(db, role);
+        console.log(`Privileges for role ${role} applied.`);
         return 0;
       }
       case 'status': {
@@ -50,7 +67,7 @@ async function main(): Promise<number> {
         return list.some((m) => !m.executedAt) ? 1 : 0;
       }
       default:
-        console.error('Usage: cli.ts <migrate|status>');
+        console.error('Usage: cli.ts <migrate|grant|status>');
         return 2;
     }
   } catch (error) {

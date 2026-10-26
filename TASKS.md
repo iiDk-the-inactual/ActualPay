@@ -637,6 +637,38 @@ high audit finding) and dependency fixes. No migration.
 
 ---
 
+## Phase 13: Docker images and production deployment
+
+Read `docs/deployment.md`. Phase 13 adds `Dockerfile`, `.dockerignore`, `scripts/build.mjs`
+(`npm run build`), `deploy/` (compose files, Caddyfile, backup script), the
+least-privilege database role (`node dist/db.mjs grant`) and a CI image job.
+No migration. **None of the container files could be run in the authoring
+sandbox (no Docker): this phase is yours to verify.**
+
+- [ ] `npm run verify` passes with **234 unit tests** and **293 integration tests**.
+- [ ] `npm run build`, then in a scratch directory `npm ci --omit=dev` with the
+      manifests and run `node dist/db.mjs status` and `node dist/api.mjs` (the
+      repository's own test of this passed).
+- [ ] `docker build -t actualpay:test .` succeeds; the image runs as non-root, has no
+      `node_modules/tsx`; `docker run --rm actualpay:test node dist/api.mjs` refuses to start.
+- [ ] On a **staging** machine with `APP_ENV=staging`/testnet values: follow
+      deployment.md §4-5 end to end; `migrate` logs `applied: … 0010_notifications` and
+      `Privileges for role actualpay_app applied.`
+- [ ] Caddy obtains a certificate; HTTP redirects to HTTPS; `/health/*` is 404 from outside.
+- [ ] Confirm `actualpay_app` cannot `CREATE TABLE` or `TRUNCATE ledger_entries`
+      (`psql` as that role).
+- [ ] Take a backup with `deploy/backup.sh` and restore it to a scratch database.
+- [ ] Kill the worker container: another keeps working (run two) and an alert fires.
+- [ ] Platform mode only: walk the signer host steps with testnet funds.
+
+### Phase 13 known limitations (do not "fix" without asking)
+
+- Single PostgreSQL instance in the stack file; no Kubernetes manifests; no HA tested.
+- No online rotation of `encryption_key`.
+- Image signing/SBOM are suggested, not automated.
+
+---
+
 ## Findings log
 
 Record every failure, its root cause, and the fix (file and line), so the
@@ -657,6 +689,7 @@ next phase starts from known-good ground.
 | 2026-10-09 | Phase 3 §3 optional | none                                                                                                                                                                                                  | Litecoin Core 0.21.4 regtest (legacy mode; archive SHA256 matches the CI pin): `chain-utxo.test.ts` ran twice, 6 passed each.                                                                                                                                                                                                                                                                                                                                 | None needed.                                                                                                                                                                                                                         |
 | 2026-10-26 | Phase 6/7 regtest   | `chain-utxo.test.ts` failed intermittently with an empty first scan, then with "Insufficient funds"                                                                                                   | (1) Bitcoin Core tells wallets about mempool transactions asynchronously, so a scan issued milliseconds after `sendtoaddress` can miss it (harmless in production: the next scan sees it). (2) Regtest block rewards halve every 150 blocks, so a node that has mined for a long time cannot fund the tests.                                                                                                                                                  | Tests now poll (`eventually`) for first visibility, mine 110 blocks, use smaller amounts, and fail with a clear message when the miner is out of funds. Use a fresh regtest datadir if you ever see that message. No product change. |
 | 2026-10-26 | Phase 11 verify     | `api-orgs.test.ts` "shows the secret once" failed intermittently; the regtest miner ran dry again                                                                                                     | Same `split('_')[3]` fragment pitfall as the unit test; each full verify mines ~550 regtest blocks and rewards halve every 150                                                                                                                                                                                                                                                                                                                                | Compare whole secret. For regtest: `bitcoin-cli stop`, delete `<datadir>/regtest`, start again whenever the "too little" message appears (documented).                                                                               |
+| 2026-10-26 | Phase 13 verify     | The regtest miner ran dry again after a few `npm run verify` runs                                                                                                                                     | Each UTXO test file mined 110 blocks with a brand-new miner wallet (about 330 blocks per run); rewards halve every 150 blocks                                                                                                                                                                                                                                                                                                                                 | `sharedRegtestMiner()` in `tests/integration/helpers.ts`: one persistent miner wallet, mining only when it needs coins (about 15 blocks per run now). A fresh datadir is no longer routinely needed.                                 |
 | 2026-10-08 | Phase 3 §6          | `chain:watch` queries node status before parsing `--xpub`, so an xprv is refused only once a node is reachable.                                                                                       | CLI ordering in `apps/api/src/cli/chain-watch.ts`.                                                                                                                                                                                                                                                                                                                                                                                                            | Not changed. Against the regtest node the xprv was refused with `extended PRIVATE key` and the key was not echoed.                                                                                                                   |
 
 ## Open questions
