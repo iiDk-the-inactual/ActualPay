@@ -37,6 +37,14 @@ export interface AppConfig {
   readonly lockoutPolicy: { readonly maxFailures: number; readonly lockMinutes: number };
   readonly rateLimits: { readonly authPerMinute: number; readonly apiPerMinute: number };
   readonly worker: { readonly scanIntervalSeconds: number };
+  readonly custody: {
+    readonly mode: 'merchant' | 'platform';
+    readonly sealKey: Buffer | undefined;
+    readonly destinationCooldownHours: number;
+    readonly approvalTtlMinutes: number;
+    readonly policyIncreaseDelayHours: number;
+    readonly feeBps: number;
+  };
   readonly webhooks: { readonly allowHttp: boolean; readonly allowPrivateNetworks: boolean };
   readonly database: { readonly url: string; readonly poolMax: number; readonly ssl: boolean };
   /** `url` is undefined when no Redis is configured (rate limits then live in process memory). */
@@ -151,6 +159,14 @@ export function loadConfig(env: RawEnv = process.env): AppConfig {
       apiPerMinute: c.RATE_LIMIT_API_PER_MINUTE,
     },
     worker: { scanIntervalSeconds: c.WORKER_SCAN_INTERVAL_SECONDS },
+    custody: {
+      mode: c.CUSTODY_MODE,
+      sealKey: c.WITHDRAWAL_SEAL_KEY ? Buffer.from(c.WITHDRAWAL_SEAL_KEY, 'base64') : undefined,
+      destinationCooldownHours: c.WITHDRAWAL_DESTINATION_COOLDOWN_HOURS,
+      approvalTtlMinutes: c.WITHDRAWAL_APPROVAL_TTL_MINUTES,
+      policyIncreaseDelayHours: c.WITHDRAWAL_POLICY_INCREASE_DELAY_HOURS,
+      feeBps: c.WITHDRAWAL_FEE_BPS,
+    },
     webhooks: {
       allowHttp: c.WEBHOOK_ALLOW_HTTP,
       allowPrivateNetworks: c.WEBHOOK_ALLOW_PRIVATE_NETWORKS,
@@ -198,6 +214,7 @@ export function describeConfig(config: AppConfig): Record<string, unknown> {
     appName: config.appName,
     publicBaseUrl: config.publicBaseUrl.origin,
     network: config.network,
+    custodyMode: config.custody.mode,
     enabledAssets: config.enabledAssets,
     database: host(config.database.url),
     redis: config.redis.url ? host(config.redis.url) : 'not configured (in-process rate limits)',

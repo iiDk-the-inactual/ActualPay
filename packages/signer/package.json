@@ -1,0 +1,24 @@
+{
+  "name": "@actualpay/signer",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@actualpay/audit": "0.1.0",
+    "@actualpay/chains": "0.1.0",
+    "@actualpay/database": "0.1.0",
+    "@actualpay/ledger": "0.1.0",
+    "@actualpay/shared": "0.1.0",
+    "@actualpay/withdrawals": "0.1.0",
+    "@noble/curves": "^2.4.0",
+    "@noble/hashes": "^2.4.0",
+    "@scure/base": "^2.4.0",
+    "@scure/bip32": "^2.4.0",
+    "@scure/bip39": "^2.4.0",
+    "kysely": "^0.29.6"
+  }
+}

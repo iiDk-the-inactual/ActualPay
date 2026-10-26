@@ -75,7 +75,7 @@ export class Agent {
   constructor(readonly api: TestApi) {}
 
   async request(
-    method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     url: string,
     options: { body?: unknown; headers?: Record<string, string>; csrf?: boolean } = {},
   ): Promise<LightMyRequestResponse> {

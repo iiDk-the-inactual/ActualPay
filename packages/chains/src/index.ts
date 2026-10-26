@@ -9,3 +9,4 @@ export * from './adapters/evm';
 export * from './adapters/tron';
 export * from './adapters/xrpl';
 export * from './factory';
+export * from './outgoing';

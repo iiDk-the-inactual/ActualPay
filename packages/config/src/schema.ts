@@ -172,6 +172,27 @@ export const rawConfigSchema = z.object({
   WEBHOOK_ALLOW_HTTP: booleanString.default('false'),
   WEBHOOK_ALLOW_PRIVATE_NETWORKS: booleanString.default('false'),
 
+  /**
+   * Who holds customers' money.
+   *  merchant  (default): wallets belong to each merchant's own keys; the platform
+   *            never holds funds and withdrawals are disabled.
+   *  platform: the operator holds funds in platform-controlled wallets; merchants
+   *            hold a ledger balance and withdraw from it. Only platform admins may
+   *            register wallets, because a merchant-chosen wallet would let a
+   *            merchant be "credited" for money the platform never received.
+   */
+  CUSTODY_MODE: z.enum(['merchant', 'platform']).default('merchant'),
+  /** HMAC key sealing approved withdrawals; shared with the signer, never stored in the database. */
+  WITHDRAWAL_SEAL_KEY: base64Key32.optional(),
+  /** A new withdrawal destination cannot be used for this long. */
+  WITHDRAWAL_DESTINATION_COOLDOWN_HOURS: z.coerce.number().int().min(0).max(720).default(24),
+  /** An approved withdrawal that is not signed within this time expires. */
+  WITHDRAWAL_APPROVAL_TTL_MINUTES: z.coerce.number().int().min(5).max(1440).default(60),
+  /** Raising a withdrawal limit takes effect after this delay (lowering is immediate). */
+  WITHDRAWAL_POLICY_INCREASE_DELAY_HOURS: z.coerce.number().int().min(0).max(720).default(24),
+  /** Platform fee charged on withdrawals, in basis points (100 = 1%). */
+  WITHDRAWAL_FEE_BPS: z.coerce.number().int().min(0).max(1000).default(0),
+
   /** How often the worker runs a full cycle (scan, recheck, expiry). */
   WORKER_SCAN_INTERVAL_SECONDS: z.coerce.number().int().min(2).max(3600).default(15),
 });
@@ -248,6 +269,14 @@ export function crossFieldRules(config: RawConfig, ctx: z.RefinementCtx): void {
     }
   }
 
+  if (config.CUSTODY_MODE === 'platform' && config.WITHDRAWAL_SEAL_KEY === undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['WITHDRAWAL_SEAL_KEY'],
+      message: 'required when CUSTODY_MODE=platform (it seals approved withdrawals)',
+    });
+  }
+
   const smtpKeys = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_FROM'] as const;
   const smtpSet = smtpKeys.filter((key) => config[key] !== undefined);
   if (smtpSet.length > 0 && smtpSet.length < smtpKeys.length) {
@@ -262,6 +291,7 @@ export function crossFieldRules(config: RawConfig, ctx: z.RefinementCtx): void {
 const SECRET_KEYS = [
   'SESSION_SECRET',
   'ENCRYPTION_KEY',
+  'WITHDRAWAL_SEAL_KEY',
   'BITCOIN_RPC_PASSWORD',
   'LITECOIN_RPC_PASSWORD',
   'SMTP_PASSWORD',
@@ -270,6 +300,21 @@ const SECRET_KEYS = [
 
 export function productionRules(config: RawConfig, ctx: z.RefinementCtx): void {
   if (config.APP_ENV !== 'production') return;
+
+  if (config.CUSTODY_MODE === 'platform') {
+    for (const key of [
+      'WITHDRAWAL_DESTINATION_COOLDOWN_HOURS',
+      'WITHDRAWAL_POLICY_INCREASE_DELAY_HOURS',
+    ] as const) {
+      if (config[key] < 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [key],
+          message: 'must be at least 1 hour in production when the platform holds funds',
+        });
+      }
+    }
+  }
 
   for (const key of ['WEBHOOK_ALLOW_HTTP', 'WEBHOOK_ALLOW_PRIVATE_NETWORKS'] as const) {
     if (config[key]) {

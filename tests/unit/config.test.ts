@@ -175,3 +175,55 @@ describe('loadConfig', () => {
     expect(text).toContain('localhost:5432');
   });
 });
+
+describe('custody and withdrawal settings', () => {
+  it('defaults to merchant custody, which needs no seal key', () => {
+    const config = loadConfig(baseEnv());
+    expect(config.custody.mode).toBe('merchant');
+  });
+
+  it('requires a seal key in platform mode and never prints it', () => {
+    expect(issues(baseEnv({ CUSTODY_MODE: 'platform' })).join('\n')).toMatch(/WITHDRAWAL_SEAL_KEY/);
+    const sealKey = key();
+    const config = loadConfig(baseEnv({ CUSTODY_MODE: 'platform', WITHDRAWAL_SEAL_KEY: sealKey }));
+    expect(config.custody.mode).toBe('platform');
+    expect(JSON.stringify(describeConfig(config))).not.toContain(sealKey);
+  });
+
+  it('rejects a seal key that is not 32 bytes', () => {
+    expect(
+      issues(
+        baseEnv({
+          CUSTODY_MODE: 'platform',
+          WITHDRAWAL_SEAL_KEY: Buffer.alloc(8).toString('base64'),
+        }),
+      ).join('\n'),
+    ).toMatch(/WITHDRAWAL_SEAL_KEY/);
+  });
+
+  it('refuses zero cool-down or policy delay in production platform mode', () => {
+    const found = issues(
+      baseEnv({
+        APP_ENV: 'production',
+        CUSTODY_MODE: 'platform',
+        WITHDRAWAL_SEAL_KEY: key(),
+        WITHDRAWAL_DESTINATION_COOLDOWN_HOURS: '0',
+        WITHDRAWAL_POLICY_INCREASE_DELAY_HOURS: '0',
+      }),
+    ).join('\n');
+    expect(found).toMatch(/WITHDRAWAL_DESTINATION_COOLDOWN_HOURS/);
+    expect(found).toMatch(/WITHDRAWAL_POLICY_INCREASE_DELAY_HOURS/);
+  });
+
+  it('refuses webhook SSRF escape hatches in production', () => {
+    const found = issues(
+      baseEnv({
+        APP_ENV: 'production',
+        WEBHOOK_ALLOW_HTTP: 'true',
+        WEBHOOK_ALLOW_PRIVATE_NETWORKS: 'true',
+      }),
+    ).join('\n');
+    expect(found).toMatch(/WEBHOOK_ALLOW_HTTP/);
+    expect(found).toMatch(/WEBHOOK_ALLOW_PRIVATE_NETWORKS/);
+  });
+});

@@ -47,7 +47,7 @@ function orgIdOf(access: OrgAccess | null): string {
 
 const walletParams = z.object({ orgId: uuid, walletId: uuid });
 
-const walletSchema = z.object({
+export const walletSchema = z.object({
   id: z.string(),
   chain: z.enum(CHAIN_FAMILIES),
   network: z.enum(['mainnet', 'testnet']),
@@ -64,7 +64,7 @@ const walletSchema = z.object({
   archivedAt: nullableIsoDate,
 });
 
-const toWallet = (w: WalletRow) => ({
+export const toWallet = (w: WalletRow) => ({
   id: w.id,
   chain: w.chain,
   network: w.network,
@@ -105,6 +105,17 @@ const toDeposit = (d: DepositAddressRow) => ({
 
 export function registerWalletRoutes(app: FastifyInstance, ctx: ApiContext): void {
   const tags = ['wallets'];
+  /**
+   * When the platform holds the funds, merchants must not choose where payments
+   * go: a merchant-chosen wallet would let them be credited for money the
+   * platform never received. Platform administrators register wallets instead.
+   */
+  const refuseInPlatformMode = (): void => {
+    if (ctx.config.custody.mode === 'platform')
+      throw AppError.forbidden(
+        'In platform custody mode wallets are registered by platform administrators, not by organizations.',
+      );
+  };
   const enabledChains = (): ChainFamily[] => [
     ...new Set(ctx.config.enabledAssets.map((id) => ASSETS[id].chain)),
   ];
@@ -134,6 +145,7 @@ export function registerWalletRoutes(app: FastifyInstance, ctx: ApiContext): voi
     }),
     successStatus: 201,
     handler: async ({ access, principal, body, meta }) => {
+      refuseInPlatformMode();
       const { wallet, firstAddress } = await createWallet(
         ctx.db,
         {
@@ -177,8 +189,9 @@ export function registerWalletRoutes(app: FastifyInstance, ctx: ApiContext): voi
     body: z.object({ address: z.string().trim().min(20).max(100) }).strict(),
     response: walletSchema,
     successStatus: 200,
-    handler: async ({ access, principal, params, body, meta }) =>
-      toWallet(
+    handler: async ({ access, principal, params, body, meta }) => {
+      refuseInPlatformMode();
+      return toWallet(
         await confirmWallet(
           ctx.db,
           {
@@ -189,7 +202,8 @@ export function registerWalletRoutes(app: FastifyInstance, ctx: ApiContext): voi
           },
           meta,
         ),
-      ),
+      );
+    },
   });
 
   defineRoute(app, ctx, {
@@ -204,8 +218,9 @@ export function registerWalletRoutes(app: FastifyInstance, ctx: ApiContext): voi
     params: walletParams,
     response: walletSchema,
     successStatus: 200,
-    handler: async ({ access, principal, params, meta }) =>
-      toWallet(
+    handler: async ({ access, principal, params, meta }) => {
+      refuseInPlatformMode();
+      return toWallet(
         await archiveWallet(
           ctx.db,
           {
@@ -215,7 +230,8 @@ export function registerWalletRoutes(app: FastifyInstance, ctx: ApiContext): voi
           },
           meta,
         ),
-      ),
+      );
+    },
   });
 
   defineRoute(app, ctx, {

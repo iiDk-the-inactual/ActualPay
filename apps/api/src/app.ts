@@ -17,6 +17,7 @@ import { deriveKey, SecretBox, type AuthDeps } from '@actualpay/auth';
 import type { ApiContext } from './http/context';
 import { registerErrorHandling } from './http/errors';
 import { resilientStore } from './http/rate-limit-store';
+import { registerAdminRoutes } from './routes/admin';
 import { registerAuthRoutes } from './routes/auth';
 import { registerHealthRoutes } from './routes/health';
 import { registerInvoiceRoutes } from './routes/invoices';
@@ -24,6 +25,7 @@ import { registerMeRoutes } from './routes/me';
 import { registerOrganizationRoutes } from './routes/organizations';
 import { registerWalletRoutes } from './routes/wallets';
 import { registerWebhookRoutes } from './routes/webhooks';
+import { registerWithdrawalRoutes } from './routes/withdrawals';
 
 export interface BuildAppOptions {
   readonly config: AppConfig;
@@ -131,6 +133,8 @@ export async function buildApp(
   registerWalletRoutes(app, ctx);
   registerInvoiceRoutes(app, ctx);
   registerWebhookRoutes(app, ctx);
+  registerWithdrawalRoutes(app, ctx);
+  registerAdminRoutes(app, ctx);
 
   return { app, ctx };
 }

@@ -12,7 +12,7 @@
 import { randomUUID } from 'node:crypto';
 import { sql } from 'kysely';
 import { SecretBox } from '@actualpay/auth';
-import { createChainAdapters } from '@actualpay/chains';
+import { createChainAdapters, createOutgoingNodes } from '@actualpay/chains';
 import { describeConfig, loadConfig } from '@actualpay/config';
 import { createDb } from '@actualpay/database';
 import { createLogger } from '@actualpay/shared';
@@ -59,6 +59,10 @@ async function main(): Promise<void> {
     logger,
     adapters,
     ownerId: `worker-${randomUUID().slice(0, 8)}`,
+    // Withdrawals (broadcast and confirmation tracking) only exist when the platform holds funds.
+    ...(config.custody.mode === 'platform'
+      ? { outgoing: createOutgoingNodes(config).byChain }
+      : {}),
     webhooks: {
       box: new SecretBox(config.secrets.encryptionKey, 'webhooks'),
       policy: config.webhooks,

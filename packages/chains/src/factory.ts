@@ -9,6 +9,7 @@ import { EvmAdapter } from './adapters/evm';
 import { TronAdapter } from './adapters/tron';
 import { XrplAdapter, XrplClientRequester } from './adapters/xrpl';
 import type { WatchOnlyAdapter } from './types';
+import { EvmNode, UtxoNode, type OutgoingChain } from './outgoing';
 
 export interface AdapterDeps {
   /** Deposit addresses to watch on account-model chains (Ethereum, TRON). */
@@ -128,4 +129,41 @@ export function createChainAdapters(
     }
   }
   return adapters;
+}
+
+export interface OutgoingNodes {
+  readonly evm?: EvmNode;
+  readonly utxo: Partial<Record<'bitcoin' | 'litecoin', UtxoNode>>;
+  /** Every node that can broadcast and follow transactions, by chain. */
+  readonly byChain: Map<ChainFamily, OutgoingChain>;
+}
+
+/**
+ * Node clients for outgoing transactions (the signer reads from them; the worker
+ * broadcasts through them). Bitcoin and Litecoin use a separate watch-only wallet,
+ * named `<wallet>_hot`, that tracks only the hot wallet's address.
+ */
+export function createOutgoingNodes(config: AppConfig): OutgoingNodes {
+  const byChain = new Map<ChainFamily, OutgoingChain>();
+  const utxo: Partial<Record<'bitcoin' | 'litecoin', UtxoNode>> = {};
+  const eth = config.chains.ethereum;
+  const evm = eth ? new EvmNode(config.network, eth.url, BigInt(eth.chainId)) : undefined;
+  if (evm) byChain.set('ethereum', evm);
+  for (const chain of ['bitcoin', 'litecoin'] as const) {
+    const c = config.chains[chain];
+    if (!c) continue;
+    const node = new UtxoNode({
+      chain,
+      network: config.network,
+      url: c.url,
+      username: c.username,
+      password: c.password,
+      walletName: `${c.walletName}_hot`,
+      requiredConfirmations: c.confirmations,
+      walletMode: chain === 'bitcoin' ? 'descriptor' : 'legacy',
+    });
+    utxo[chain] = node;
+    byChain.set(chain, node);
+  }
+  return { ...(evm ? { evm } : {}), utxo, byChain };
 }

@@ -6,9 +6,15 @@
  *   then:       recheck unsettled payments → expire invoices → reconcile
  */
 import { randomUUID } from 'node:crypto';
-import { BitcoinCoreAdapter, type WatchOnlyAdapter } from '@actualpay/chains';
+import { BitcoinCoreAdapter, type OutgoingChain, type WatchOnlyAdapter } from '@actualpay/chains';
 import type { Db } from '@actualpay/database';
 import { expireInvoices } from '@actualpay/payments';
+import {
+  broadcastSigned,
+  expireApprovals,
+  trackBroadcasts,
+  type OutgoingSummary,
+} from '@actualpay/withdrawals';
 import {
   deliverDue,
   type DeliverySummary,
@@ -30,6 +36,8 @@ export interface WorkerDeps {
   /** Identifies this worker in lease records. */
   readonly ownerId?: string;
   readonly leaseSeconds?: number;
+  /** Nodes for broadcasting and following withdrawals; omitted means this worker does not handle them. */
+  readonly outgoing?: ReadonlyMap<ChainFamily, OutgoingChain>;
   /** Webhook delivery; omitted means webhooks are not sent by this worker. */
   readonly webhooks?: {
     readonly box: SecretBox;
@@ -44,6 +52,8 @@ export interface CycleResult {
   expired?: number | { kind: 'lease_held' };
   reconciled?: { problems: number } | { kind: 'lease_held' };
   webhooks?: DeliverySummary | { kind: 'lease_held' };
+  withdrawals?:
+    { expired: number; broadcast: number; tracked: OutgoingSummary } | { kind: 'lease_held' };
 }
 
 export async function runCycle(
@@ -91,6 +101,27 @@ export async function runCycle(
     expireInvoices(db, options.now ? { now: options.now } : {}),
   );
   result.expired = expire.ran ? expire.value : { kind: 'lease_held' };
+
+  if (deps.outgoing) {
+    const outgoing = deps.outgoing;
+    const run = await runLeased(db, lease('withdrawals'), async () => {
+      const expired = await expireApprovals(db, options.now ? { now: options.now } : {});
+      const sent = await broadcastSigned({
+        db,
+        outgoing,
+        logger,
+        ...(options.now ? { now: options.now } : {}),
+      });
+      const tracked = await trackBroadcasts({
+        db,
+        outgoing,
+        logger,
+        ...(options.now ? { now: options.now } : {}),
+      });
+      return { expired, broadcast: sent.broadcast, tracked };
+    });
+    result.withdrawals = run.ran ? run.value : { kind: 'lease_held' };
+  }
 
   if (deps.webhooks) {
     const { box, policy, resolver } = deps.webhooks;

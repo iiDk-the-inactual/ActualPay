@@ -1,0 +1,20 @@
+{
+  "name": "@actualpay/signer-app",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/main.ts"
+  },
+  "dependencies": {
+    "@actualpay/chains": "0.1.0",
+    "@actualpay/config": "0.1.0",
+    "@actualpay/database": "0.1.0",
+    "@actualpay/shared": "0.1.0",
+    "@actualpay/signer": "0.1.0"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=../../.env --import tsx src/main.ts"
+  }
+}

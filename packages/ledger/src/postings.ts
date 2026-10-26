@@ -195,3 +195,80 @@ export async function postWithdrawalSettled(
     lines,
   });
 }
+
+/**
+ * The operator adds coins to the platform's own holdings, for example topping
+ * up a hot wallet with ETH for gas or seeding it with working capital.
+ * Dr custody / Cr platform_revenue.
+ *
+ * `platform_revenue` is the pool of platform-owned value (fees earned plus
+ * anything the operator contributes). This is what lets network fees, which
+ * are paid out of the hot wallet, be backed by something in the books.
+ * Moving coins between the platform's own addresses (sweeps, cold storage)
+ * needs no posting: custody covers all of them.
+ */
+export async function postPlatformFunding(
+  tx: Tx,
+  params: { assetId: string; amount: bigint; reference: string; note?: string },
+): Promise<PostResult> {
+  assertPositive(params.amount, 'funding amount');
+  const custody = await ensureAccount(tx, {
+    organizationId: null,
+    assetId: params.assetId,
+    type: 'custody',
+  });
+  const revenue = await ensureAccount(tx, {
+    organizationId: null,
+    assetId: params.assetId,
+    type: 'platform_revenue',
+  });
+  return postJournal(tx, {
+    externalRef: `funding:${params.reference}`,
+    kind: 'adjustment',
+    organizationId: null,
+    lines: [
+      { accountId: custody.id, direction: 'debit', amount: params.amount },
+      { accountId: revenue.id, direction: 'credit', amount: params.amount },
+    ],
+    ...(params.note ? { description: params.note } : {}),
+  });
+}
+
+/**
+ * A withdrawal's transaction was mined but reverted (an ERC-20 transfer that
+ * failed): the money did not move but the network fee was burnt. The merchant's
+ * held funds go back; the fee is the platform's loss.
+ *
+ *   Dr network_fees / Cr custody    networkFee (fee asset)
+ *
+ * (The hold itself is returned with `postWithdrawalRelease`.)
+ */
+export async function postWithdrawalFailedFee(
+  tx: Tx,
+  params: {
+    organizationId: string;
+    withdrawalId: string;
+    networkFee: { assetId: string; amount: bigint };
+  },
+): Promise<PostResult | null> {
+  if (params.networkFee.amount <= 0n) return null;
+  const expense = await ensureAccount(tx, {
+    organizationId: null,
+    assetId: params.networkFee.assetId,
+    type: 'network_fees',
+  });
+  const custody = await ensureAccount(tx, {
+    organizationId: null,
+    assetId: params.networkFee.assetId,
+    type: 'custody',
+  });
+  return postJournal(tx, {
+    externalRef: `withdrawal:${params.withdrawalId}:failed_fee`,
+    kind: 'network_fee',
+    organizationId: params.organizationId,
+    lines: [
+      { accountId: expense.id, direction: 'debit', amount: params.networkFee.amount },
+      { accountId: custody.id, direction: 'credit', amount: params.networkFee.amount },
+    ],
+  });
+}

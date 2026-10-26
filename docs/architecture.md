@@ -121,7 +121,7 @@ docs/        design and operations documentation
 5. Invoices, payment links, payment state machine ← **done** (see docs/payments.md)
 6. Chain watchers, confirmations, reorg handling, reconciliation, job system ← **done** (see docs/watcher.md)
 7. Webhooks ← **done** (see docs/webhooks.md)
-8. Signer service and withdrawals
+8. Signer service and withdrawals ← **done** (see docs/withdrawals.md)
 9. Merchant and admin dashboards
 10. Email and optional forwarding
 11. Documentation and OpenAPI

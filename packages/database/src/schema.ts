@@ -433,6 +433,113 @@ export interface WebhookDeliveriesTable {
   created_at: Timestamp;
 }
 
+export type WithdrawalStatus =
+  | 'pending_approval'
+  | 'approved'
+  | 'rejected'
+  | 'cancelled'
+  | 'expired'
+  | 'signed'
+  | 'broadcast'
+  | 'confirmed'
+  | 'failed'
+  | 'needs_review';
+
+type Opt<T> = ColumnType<T | null, T | null | undefined, T | null>;
+type OptNum = ColumnType<string | null, string | bigint | null | undefined, string | bigint | null>;
+
+export interface PlatformSettingsTable {
+  id: boolean;
+  withdrawals_paused: ColumnType<boolean, boolean | undefined, boolean>;
+  pause_reason: Opt<string>;
+  updated_by: Opt<string>;
+  updated_at: ColumnType<Date, Date | string | undefined, Date | string>;
+}
+
+export interface HotWalletsTable {
+  id: Generated<string>;
+  chain: 'bitcoin' | 'litecoin' | 'ethereum' | 'tron' | 'xrpl';
+  network: 'mainnet' | 'testnet';
+  address: string;
+  label: string;
+  status: ColumnType<'active' | 'retired', 'active' | undefined, 'active' | 'retired'>;
+  created_at: Timestamp;
+}
+
+export interface WithdrawalDestinationsTable {
+  id: Generated<string>;
+  organization_id: string;
+  chain: 'bitcoin' | 'litecoin' | 'ethereum' | 'tron' | 'xrpl';
+  address: string;
+  destination_tag: ColumnType<string | null, string | number | null | undefined, never>;
+  label: string;
+  created_by: string;
+  created_at: Timestamp;
+  active_at: ColumnType<Date, Date | string, never>;
+  revoked_at: NullableTimestamp;
+  revoked_by: Opt<string>;
+}
+
+export interface WithdrawalPolicyVersionsTable {
+  id: Generated<string>;
+  organization_id: string;
+  asset_id: string;
+  enabled: boolean;
+  min_amount: Numeric;
+  max_per_withdrawal: Numeric;
+  max_per_day: Numeric;
+  effective_at: ColumnType<Date, Date | string, never>;
+  created_by: string;
+  created_at: Timestamp;
+}
+
+export interface WithdrawalsTable {
+  id: Generated<string>;
+  organization_id: string;
+  asset_id: string;
+  amount: Numeric;
+  fee_charged: ColumnType<string, string | bigint | undefined, never>;
+  destination_id: string;
+  destination_address: string;
+  destination_tag: ColumnType<string | null, string | number | null | undefined, never>;
+  client_ref: ColumnType<string | null, string | null | undefined, never>;
+  description: ColumnType<string | null, string | null | undefined, never>;
+  status: ColumnType<WithdrawalStatus, WithdrawalStatus | undefined, WithdrawalStatus>;
+  requested_by_type: 'user' | 'api_key';
+  requested_by_id: string;
+  hold_journal_id: string;
+  approved_by: Opt<string>;
+  approved_at: NullableTimestamp;
+  approval_expires_at: NullableTimestamp;
+  approval_seal: Opt<string>;
+  decided_by: Opt<string>;
+  decided_at: NullableTimestamp;
+  decision_reason: Opt<string>;
+  release_journal_id: Opt<string>;
+  hot_address: Opt<string>;
+  signed_at: NullableTimestamp;
+  signed_tx: Opt<string>;
+  txid: Opt<string>;
+  nonce: ColumnType<
+    string | null,
+    string | number | bigint | null | undefined,
+    string | number | bigint | null
+  >;
+  inputs: ColumnType<string[] | null, string[] | null | undefined, string[] | null>;
+  planned_network_fee: OptNum;
+  broadcast_at: NullableTimestamp;
+  broadcast_attempts: ColumnType<number, number | undefined, number>;
+  last_error: Opt<string>;
+  confirmed_at: NullableTimestamp;
+  confirmations: ColumnType<string, string | bigint | undefined, string | bigint>;
+  block_height: OptNum;
+  final_network_fee: OptNum;
+  settle_journal_id: Opt<string>;
+  last_checked_at: NullableTimestamp;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+}
+
 export interface Database {
   organizations: OrganizationsTable;
   assets: AssetsTable;
@@ -460,6 +567,11 @@ export interface Database {
   reconciliation_issues: ReconciliationIssuesTable;
   webhook_endpoints: WebhookEndpointsTable;
   webhook_deliveries: WebhookDeliveriesTable;
+  platform_settings: PlatformSettingsTable;
+  hot_wallets: HotWalletsTable;
+  withdrawal_destinations: WithdrawalDestinationsTable;
+  withdrawal_policy_versions: WithdrawalPolicyVersionsTable;
+  withdrawals: WithdrawalsTable;
 }
 
 export type Organization = Selectable<OrganizationsTable>;
@@ -470,6 +582,10 @@ export type PaymentLinkRow = Selectable<PaymentLinksTable>;
 export type ChainCursorRow = Selectable<ChainCursorsTable>;
 export type WebhookEndpointRow = Selectable<WebhookEndpointsTable>;
 export type WebhookDeliveryRow = Selectable<WebhookDeliveriesTable>;
+export type WithdrawalRow = Selectable<WithdrawalsTable>;
+export type WithdrawalDestinationRow = Selectable<WithdrawalDestinationsTable>;
+export type WithdrawalPolicyRow = Selectable<WithdrawalPolicyVersionsTable>;
+export type HotWalletRow = Selectable<HotWalletsTable>;
 export type ReconciliationIssueRow = Selectable<ReconciliationIssuesTable>;
 export type DepositAddressRow = Selectable<DepositAddressesTable>;
 export type LedgerAccountRow = Selectable<LedgerAccountsTable>;

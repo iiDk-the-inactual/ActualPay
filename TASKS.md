@@ -519,6 +519,36 @@ delivers. Testnets only.
 
 ---
 
+## Phase 8: Signer and withdrawals
+
+Read `docs/withdrawals.md` first. Phase 8 adds migration `0009_withdrawals`, the
+`packages/withdrawals` and `packages/signer` packages, `apps/signer`, and the
+withdrawal and `/v1/admin` endpoints. **Test networks and local chains only.**
+It is optional: the default `CUSTODY_MODE=merchant` has no withdrawals at all.
+
+- [ ] `npm run db:migrate` prints `applied: 0009_withdrawals`.
+- [ ] `npm run verify` passes with **224 unit tests** and **226 integration tests** (Anvil and regtest bitcoind running, nothing skipped).
+- [ ] With `CUSTODY_MODE=platform`, run `npm run signer:init` on a scratch machine,
+      confirm the 24 words are shown once and the keystore file is not readable
+      with a wrong passphrase.
+- [ ] Register the printed hot addresses as an MFA platform administrator and fund
+      them on **testnet** only; withdraw a small amount of each asset end to end.
+- [ ] Confirm the requester cannot approve their own withdrawal, a user without
+      MFA cannot approve, and `pause` stops signing immediately.
+- [ ] Edit an approved withdrawal's amount directly in the database: the signer
+      must refuse it (seal).
+- [ ] Confirm `needs_review` withdrawals never release their hold on their own.
+
+### Phase 8 known limitations (do not "fix" without asking)
+
+- XRP and TRON withdrawals are unsupported.
+- Software keystore (no HSM); the seal does not defend against a full API-host compromise.
+- No on-chain vs ledger reconciliation of the hot wallet yet.
+- A dropped signed EVM transaction (nonce gap) needs manual handling.
+- Operators must record gas funding via `/v1/admin/platform-funding`.
+
+---
+
 ## Findings log
 
 Record every failure, its root cause, and the fix (file and line), so the

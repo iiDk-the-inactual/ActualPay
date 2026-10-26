@@ -3,10 +3,10 @@
 A self-hostable, open-source cryptocurrency payment processor for Bitcoin,
 Litecoin, Ethereum, USDT (Ethereum and Tron), TRON and XRP.
 
-> ⚠️ **Under active development: Phase 7 of 13 complete.** Accounts, organizations,
+> ⚠️ **Under active development: Phase 8 of 13 complete.** Accounts, organizations,
 > permissions, API keys, the ledger, watch-only chain adapters, wallets, invoices,
-> payment links, the chain-watching worker and signed webhooks exist; withdrawals
-> do not yet. Do not use
+> payment links, the chain-watching worker, signed webhooks and (optional, platform
+> custody mode) the signer and withdrawals exist; no dashboard yet. Do not use
 > with real funds. Even when complete, you are responsible for securing your
 > own infrastructure and funds. No software is "100% secure".
 
@@ -62,6 +62,7 @@ npm run worker:dev        # in a second terminal: watches the chains
 - [Invoices and payments](docs/payments.md)
 - [Chain watching and the worker](docs/watcher.md)
 - [Webhooks](docs/webhooks.md)
+- [Withdrawals and the signer](docs/withdrawals.md)
 - [Local setup without Docker](docs/local-setup-no-docker.md)
 - [Local verification checklist](TASKS.md)
 - [Security policy](SECURITY.md)
