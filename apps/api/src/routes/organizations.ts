@@ -501,7 +501,7 @@ export function registerOrganizationRoutes(app: FastifyInstance, ctx: ApiContext
           targetId: z.string().nullable(),
           requestId: z.string().nullable(),
           ipAddress: z.string().nullable(),
-          metadata: z.record(z.unknown()),
+          metadata: z.record(z.string(), z.unknown()),
         }),
       ),
       nextCursor: z.string().nullable(),

@@ -62,7 +62,7 @@
       "get": {
         "operationId": "get_admin_hot_wallets",
         "summary": "List registered hot wallets",
-        "description": "Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
+        "description": "Platform administrators only. Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
         "tags": [
           "admin"
         ],
@@ -126,15 +126,13 @@
                           "label",
                           "status",
                           "createdAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     }
                   },
                   "required": [
                     "data"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -184,7 +182,7 @@
       "post": {
         "operationId": "post_admin_hot_wallets",
         "summary": "Authorise the signer to pay from a hot wallet (use the address `signer:init` printed)",
-        "description": "Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
+        "description": "Platform administrators only. Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
         "tags": [
           "admin"
         ],
@@ -281,8 +279,7 @@
                     "label",
                     "status",
                     "createdAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -334,7 +331,7 @@
       "post": {
         "operationId": "post_admin_hot_wallets_by_hotWalletId_retire",
         "summary": "Stop the signer paying from a hot wallet",
-        "description": "Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
+        "description": "Platform administrators only. Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
         "tags": [
           "admin"
         ],
@@ -350,7 +347,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -404,8 +402,7 @@
                     "label",
                     "status",
                     "createdAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -457,7 +454,7 @@
       "get": {
         "operationId": "get_admin_issues",
         "summary": "Reconciliation issues that need a human",
-        "description": "Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
+        "description": "Platform administrators only. Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
         "tags": [
           "admin"
         ],
@@ -472,12 +469,12 @@
             "in": "query",
             "required": false,
             "schema": {
+              "default": "open",
               "type": "string",
               "enum": [
                 "open",
                 "resolved"
-              ],
-              "default": "open"
+              ]
             }
           }
         ],
@@ -535,8 +532,8 @@
                             "format": "date-time"
                           },
                           "resolutionNote": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           }
                         },
                         "required": [
@@ -551,15 +548,13 @@
                           "firstSeenAt",
                           "lastSeenAt",
                           "resolutionNote"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     }
                   },
                   "required": [
                     "data"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -611,7 +606,7 @@
       "post": {
         "operationId": "post_admin_issues_by_issueId_resolve",
         "summary": "Resolve an issue with a note (audited)",
-        "description": "Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
+        "description": "Platform administrators only. Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
         "tags": [
           "admin"
         ],
@@ -627,7 +622,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -673,8 +669,7 @@
                   "required": [
                     "id",
                     "status"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -726,7 +721,7 @@
       "post": {
         "operationId": "post_admin_organizations_by_orgId_wallets",
         "summary": "Register a platform-held wallet for an organization (custodial mode)",
-        "description": "Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
+        "description": "Platform administrators only. Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
         "tags": [
           "admin"
         ],
@@ -742,7 +737,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -823,12 +819,12 @@
                           "type": "string"
                         },
                         "accountXpub": {
-                          "type": "string",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "string"
                         },
                         "xrplAddress": {
-                          "type": "string",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "string"
                         },
                         "status": {
                           "type": "string",
@@ -841,9 +837,9 @@
                           "type": "boolean"
                         },
                         "confirmedAt": {
+                          "nullable": true,
                           "type": "string",
-                          "format": "date-time",
-                          "nullable": true
+                          "format": "date-time"
                         },
                         "nextIndex": {
                           "type": "string"
@@ -853,9 +849,9 @@
                           "format": "date-time"
                         },
                         "archivedAt": {
+                          "nullable": true,
                           "type": "string",
-                          "format": "date-time",
-                          "nullable": true
+                          "format": "date-time"
                         }
                       },
                       "required": [
@@ -871,8 +867,7 @@
                         "nextIndex",
                         "createdAt",
                         "archivedAt"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "firstAddress": {
                       "type": "object",
@@ -881,22 +876,20 @@
                           "type": "string"
                         },
                         "destinationTag": {
-                          "type": "number",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
                         "address",
                         "destinationTag"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "required": [
                     "wallet",
                     "firstAddress"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -948,7 +941,7 @@
       "post": {
         "operationId": "post_admin_organizations_by_orgId_wallets_by_walletId_archive",
         "summary": "Archive a platform-held wallet",
-        "description": "Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
+        "description": "Platform administrators only. Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
         "tags": [
           "admin"
         ],
@@ -964,7 +957,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -973,7 +967,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -1009,12 +1004,12 @@
                       "type": "string"
                     },
                     "accountXpub": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "xrplAddress": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "status": {
                       "type": "string",
@@ -1027,9 +1022,9 @@
                       "type": "boolean"
                     },
                     "confirmedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "nextIndex": {
                       "type": "string"
@@ -1039,9 +1034,9 @@
                       "format": "date-time"
                     },
                     "archivedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -1057,8 +1052,7 @@
                     "nextIndex",
                     "createdAt",
                     "archivedAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -1110,7 +1104,7 @@
       "post": {
         "operationId": "post_admin_organizations_by_orgId_wallets_by_walletId_confirm",
         "summary": "Confirm a platform-held wallet against the operator wallet software",
-        "description": "Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
+        "description": "Platform administrators only. Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
         "tags": [
           "admin"
         ],
@@ -1126,7 +1120,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -1135,7 +1130,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -1192,12 +1188,12 @@
                       "type": "string"
                     },
                     "accountXpub": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "xrplAddress": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "status": {
                       "type": "string",
@@ -1210,9 +1206,9 @@
                       "type": "boolean"
                     },
                     "confirmedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "nextIndex": {
                       "type": "string"
@@ -1222,9 +1218,9 @@
                       "format": "date-time"
                     },
                     "archivedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -1240,8 +1236,7 @@
                     "nextIndex",
                     "createdAt",
                     "archivedAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -1293,7 +1288,7 @@
       "post": {
         "operationId": "post_admin_platform_funding",
         "summary": "Record coins you added to the platform holdings (e.g. ETH for gas)",
-        "description": "Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
+        "description": "Platform administrators only. Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
         "tags": [
           "admin"
         ],
@@ -1377,16 +1372,14 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "required": [
                     "journalId",
                     "created",
                     "amount"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -1438,7 +1431,7 @@
       "get": {
         "operationId": "get_admin_status",
         "summary": "Platform status: custody mode, pause switch, watcher cursors, open issues",
-        "description": "Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
+        "description": "Platform administrators only. Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
         "tags": [
           "admin"
         ],
@@ -1465,8 +1458,8 @@
                       "type": "boolean"
                     },
                     "pauseReason": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "chains": {
                       "type": "array",
@@ -1477,21 +1470,21 @@
                             "type": "string"
                           },
                           "scannedAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "tipHeight": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "synced": {
-                            "type": "boolean",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "boolean"
                           },
                           "lastError": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           }
                         },
                         "required": [
@@ -1500,8 +1493,7 @@
                           "tipHeight",
                           "synced",
                           "lastError"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     },
                     "openIssues": {
@@ -1517,8 +1509,7 @@
                       "required": [
                         "critical",
                         "warning"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "required": [
@@ -1528,8 +1519,7 @@
                     "pauseReason",
                     "chains",
                     "openIssues"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -1581,7 +1571,7 @@
       "post": {
         "operationId": "post_admin_withdrawals_pause",
         "summary": "Emergency stop: no withdrawal can be requested, approved or signed",
-        "description": "Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
+        "description": "Platform administrators only. Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
         "tags": [
           "admin"
         ],
@@ -1625,8 +1615,7 @@
                   },
                   "required": [
                     "paused"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -1678,7 +1667,7 @@
       "post": {
         "operationId": "post_admin_withdrawals_resume",
         "summary": "Lift the withdrawal pause",
-        "description": "Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
+        "description": "Platform administrators only. Requires a session that completed two-factor authentication. Browser session only; API keys are not accepted.",
         "tags": [
           "admin"
         ],
@@ -1701,8 +1690,7 @@
                   },
                   "required": [
                     "paused"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -1780,8 +1768,7 @@
                 "required": [
                   "email",
                   "password"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -1827,8 +1814,7 @@
                             "displayName",
                             "emailVerified",
                             "isPlatformAdmin"
-                          ],
-                          "additionalProperties": false
+                          ]
                         },
                         "csrfToken": {
                           "type": "string"
@@ -1838,8 +1824,7 @@
                         "status",
                         "user",
                         "csrfToken"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     {
                       "type": "object",
@@ -1857,8 +1842,7 @@
                       "required": [
                         "status",
                         "mfaToken"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   ]
                 }
@@ -1918,8 +1902,7 @@
                 "required": [
                   "mfaToken",
                   "code"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -1963,8 +1946,7 @@
                         "displayName",
                         "emailVerified",
                         "isPlatformAdmin"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "csrfToken": {
                       "type": "string"
@@ -1974,8 +1956,7 @@
                     "status",
                     "user",
                     "csrfToken"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -2087,8 +2068,7 @@
                 },
                 "required": [
                   "email"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -2110,8 +2090,7 @@
                   },
                   "required": [
                     "status"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -2169,8 +2148,7 @@
                 "required": [
                   "token",
                   "newPassword"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -2238,8 +2216,7 @@
                   "email",
                   "password",
                   "displayName"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -2261,8 +2238,7 @@
                   },
                   "required": [
                     "status"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -2314,8 +2290,7 @@
                 },
                 "required": [
                   "email"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -2337,8 +2312,7 @@
                   },
                   "required": [
                     "status"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -2390,8 +2364,7 @@
                 },
                 "required": [
                   "token"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -2413,8 +2386,7 @@
                   },
                   "required": [
                     "verified"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -2470,8 +2442,7 @@
                 },
                 "required": [
                   "token"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -2501,8 +2472,7 @@
                   "required": [
                     "organizationId",
                     "role"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -2596,8 +2566,7 @@
                         "displayName",
                         "emailVerified",
                         "isPlatformAdmin"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "mfaEnabled": {
                       "type": "boolean"
@@ -2606,7 +2575,9 @@
                       "type": "boolean"
                     },
                     "recoveryCodesRemaining": {
-                      "type": "integer"
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
                     },
                     "csrfToken": {
                       "type": "string"
@@ -2618,8 +2589,7 @@
                     "mfaVerified",
                     "recoveryCodesRemaining",
                     "csrfToken"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -2695,8 +2665,7 @@
                 },
                 "required": [
                   "code"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -2718,8 +2687,7 @@
                   },
                   "required": [
                     "recoveryCodes"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -2795,8 +2763,7 @@
                 },
                 "required": [
                   "code"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -2818,8 +2785,7 @@
                   },
                   "required": [
                     "recoveryCodes"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -2901,8 +2867,7 @@
                 "required": [
                   "password",
                   "code"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -2985,8 +2950,7 @@
                   "required": [
                     "secret",
                     "otpauthUri"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -3098,15 +3062,13 @@
                           "status",
                           "role",
                           "createdAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     }
                   },
                   "required": [
                     "data"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -3188,8 +3150,7 @@
                 "required": [
                   "currentPassword",
                   "newPassword"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -3286,12 +3247,12 @@
                             "format": "date-time"
                           },
                           "ipAddress": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "userAgent": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "mfaVerified": {
                             "type": "boolean"
@@ -3306,15 +3267,13 @@
                           "ipAddress",
                           "userAgent",
                           "mfaVerified"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     }
                   },
                   "required": [
                     "data"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -3382,7 +3341,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -3455,13 +3415,14 @@
                   "type": "object",
                   "properties": {
                     "revoked": {
-                      "type": "integer"
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
                     }
                   },
                   "required": [
                     "revoked"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -3556,8 +3517,7 @@
                   },
                   "required": [
                     "confirmed"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -3630,15 +3590,13 @@
                           "kind",
                           "label",
                           "roles"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     }
                   },
                   "required": [
                     "data"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -3699,8 +3657,7 @@
                 },
                 "required": [
                   "name"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -3727,8 +3684,7 @@
                     "id",
                     "slug",
                     "name"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -3796,7 +3752,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -3835,8 +3792,7 @@
                     "name",
                     "status",
                     "createdAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -3912,7 +3868,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -3931,8 +3888,7 @@
                 },
                 "required": [
                   "name"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -3972,8 +3928,7 @@
                     "name",
                     "status",
                     "createdAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -4053,7 +4008,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -4076,6 +4032,7 @@
                       ]
                     },
                     "role": {
+                      "nullable": true,
                       "type": "string",
                       "enum": [
                         "owner",
@@ -4083,8 +4040,7 @@
                         "finance",
                         "developer",
                         "viewer"
-                      ],
-                      "nullable": true
+                      ]
                     },
                     "permissions": {
                       "type": "array",
@@ -4098,8 +4054,7 @@
                     "via",
                     "role",
                     "permissions"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -4177,7 +4132,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -4217,23 +4173,23 @@
                             "format": "date-time"
                           },
                           "expiresAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "revokedAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "lastUsedAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "rotatedFromId": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           }
                         },
                         "required": [
@@ -4247,15 +4203,13 @@
                           "revokedAt",
                           "lastUsedAt",
                           "rotatedFromId"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     }
                   },
                   "required": [
                     "data"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -4331,7 +4285,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -4360,6 +4315,8 @@
                     "maxLength": 100
                   },
                   "scopes": {
+                    "minItems": 1,
+                    "maxItems": 32,
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -4375,9 +4332,7 @@
                         "webhook:read",
                         "webhook:manage"
                       ]
-                    },
-                    "minItems": 1,
-                    "maxItems": 32
+                    }
                   },
                   "expiresAt": {
                     "type": "string",
@@ -4387,8 +4342,7 @@
                 "required": [
                   "name",
                   "scopes"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -4419,8 +4373,7 @@
                     "prefix",
                     "key",
                     "warning"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -4498,7 +4451,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -4507,7 +4461,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -4588,7 +4543,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -4597,7 +4553,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -4609,13 +4566,12 @@
                 "type": "object",
                 "properties": {
                   "graceHours": {
+                    "default": 24,
                     "type": "integer",
                     "minimum": 0,
-                    "maximum": 168,
-                    "default": 24
+                    "maximum": 168
                   }
-                },
-                "additionalProperties": false
+                }
               }
             }
           }
@@ -4641,9 +4597,9 @@
                       "type": "string"
                     },
                     "oldKeyExpiresAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -4652,8 +4608,7 @@
                     "key",
                     "warning",
                     "oldKeyExpiresAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -4731,7 +4686,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -4739,10 +4695,10 @@
             "in": "query",
             "required": false,
             "schema": {
+              "default": 50,
               "type": "integer",
               "minimum": 1,
-              "maximum": 200,
-              "default": 50
+              "maximum": 200
             }
           },
           {
@@ -4788,27 +4744,27 @@
                             "type": "string"
                           },
                           "actorId": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "action": {
                             "type": "string"
                           },
                           "targetType": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "targetId": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "requestId": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "ipAddress": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "metadata": {
                             "type": "object",
@@ -4826,20 +4782,18 @@
                           "requestId",
                           "ipAddress",
                           "metadata"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     },
                     "nextCursor": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     }
                   },
                   "required": [
                     "data",
                     "nextCursor"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -4917,7 +4871,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -4965,15 +4920,13 @@
                           "role",
                           "expiresAt",
                           "createdAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     }
                   },
                   "required": [
                     "data"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -5049,7 +5002,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -5079,8 +5033,7 @@
                 "required": [
                   "email",
                   "role"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -5119,8 +5072,7 @@
                     "email",
                     "role",
                     "expiresAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -5198,7 +5150,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -5207,7 +5160,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -5291,7 +5245,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -5299,10 +5254,10 @@
             "in": "query",
             "required": false,
             "schema": {
+              "default": 50,
               "type": "integer",
               "minimum": 1,
-              "maximum": 200,
-              "default": 50
+              "maximum": 200
             }
           },
           {
@@ -5371,12 +5326,12 @@
                             ]
                           },
                           "externalId": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "description": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "metadata": {
                             "type": "object",
@@ -5399,8 +5354,7 @@
                               "asset",
                               "amount",
                               "baseUnits"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "amountConfirmed": {
                             "type": "object",
@@ -5419,8 +5373,7 @@
                               "asset",
                               "amount",
                               "baseUnits"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "amountPending": {
                             "type": "object",
@@ -5439,8 +5392,7 @@
                               "asset",
                               "amount",
                               "baseUnits"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "deposit": {
                             "type": "object",
@@ -5452,12 +5404,12 @@
                                 "type": "string"
                               },
                               "destinationTag": {
-                                "type": "number",
-                                "nullable": true
+                                "nullable": true,
+                                "type": "number"
                               },
                               "paymentUri": {
-                                "type": "string",
-                                "nullable": true
+                                "nullable": true,
+                                "type": "string"
                               }
                             },
                             "required": [
@@ -5465,8 +5417,7 @@
                               "address",
                               "destinationTag",
                               "paymentUri"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "hostedUrl": {
                             "type": "string"
@@ -5476,16 +5427,16 @@
                             "format": "date-time"
                           },
                           "paidAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "paidLate": {
                             "type": "boolean"
                           },
                           "paymentLinkId": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "createdAt": {
                             "type": "string",
@@ -5509,20 +5460,18 @@
                           "paidLate",
                           "paymentLinkId",
                           "createdAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     },
                     "nextCursor": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     }
                   },
                   "required": [
                     "data",
                     "nextCursor"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -5601,7 +5550,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -5643,7 +5593,8 @@
                   },
                   "walletId": {
                     "type": "string",
-                    "format": "uuid"
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   },
                   "externalId": {
                     "type": "string",
@@ -5659,7 +5610,9 @@
                     "additionalProperties": {}
                   },
                   "expiresInMinutes": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
                   }
                 },
                 "required": [
@@ -5697,12 +5650,12 @@
                       ]
                     },
                     "externalId": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "metadata": {
                       "type": "object",
@@ -5725,8 +5678,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "amountConfirmed": {
                       "type": "object",
@@ -5745,8 +5697,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "amountPending": {
                       "type": "object",
@@ -5765,8 +5716,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "deposit": {
                       "type": "object",
@@ -5778,12 +5728,12 @@
                           "type": "string"
                         },
                         "destinationTag": {
-                          "type": "number",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "number"
                         },
                         "paymentUri": {
-                          "type": "string",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -5791,8 +5741,7 @@
                         "address",
                         "destinationTag",
                         "paymentUri"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "hostedUrl": {
                       "type": "string"
@@ -5802,16 +5751,16 @@
                       "format": "date-time"
                     },
                     "paidAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "paidLate": {
                       "type": "boolean"
                     },
                     "paymentLinkId": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "createdAt": {
                       "type": "string",
@@ -5835,8 +5784,7 @@
                     "paidLate",
                     "paymentLinkId",
                     "createdAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -5917,7 +5865,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -5926,7 +5875,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -5956,12 +5906,12 @@
                       ]
                     },
                     "externalId": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "metadata": {
                       "type": "object",
@@ -5984,8 +5934,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "amountConfirmed": {
                       "type": "object",
@@ -6004,8 +5953,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "amountPending": {
                       "type": "object",
@@ -6024,8 +5972,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "deposit": {
                       "type": "object",
@@ -6037,12 +5984,12 @@
                           "type": "string"
                         },
                         "destinationTag": {
-                          "type": "number",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "number"
                         },
                         "paymentUri": {
-                          "type": "string",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -6050,8 +5997,7 @@
                         "address",
                         "destinationTag",
                         "paymentUri"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "hostedUrl": {
                       "type": "string"
@@ -6061,16 +6007,16 @@
                       "format": "date-time"
                     },
                     "paidAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "paidLate": {
                       "type": "boolean"
                     },
                     "paymentLinkId": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "createdAt": {
                       "type": "string",
@@ -6118,8 +6064,7 @@
                               "asset",
                               "amount",
                               "baseUnits"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "countsTowardInvoice": {
                             "type": "boolean"
@@ -6132,14 +6077,14 @@
                             "format": "date-time"
                           },
                           "confirmedAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "reversedAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           }
                         },
                         "required": [
@@ -6154,8 +6099,7 @@
                           "detectedAt",
                           "confirmedAt",
                           "reversedAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     }
                   },
@@ -6177,8 +6121,7 @@
                     "paymentLinkId",
                     "createdAt",
                     "payments"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -6259,7 +6202,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -6268,7 +6212,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -6310,12 +6255,12 @@
                       ]
                     },
                     "externalId": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "metadata": {
                       "type": "object",
@@ -6338,8 +6283,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "amountConfirmed": {
                       "type": "object",
@@ -6358,8 +6302,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "amountPending": {
                       "type": "object",
@@ -6378,8 +6321,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "deposit": {
                       "type": "object",
@@ -6391,12 +6333,12 @@
                           "type": "string"
                         },
                         "destinationTag": {
-                          "type": "number",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "number"
                         },
                         "paymentUri": {
-                          "type": "string",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -6404,8 +6346,7 @@
                         "address",
                         "destinationTag",
                         "paymentUri"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "hostedUrl": {
                       "type": "string"
@@ -6415,16 +6356,16 @@
                       "format": "date-time"
                     },
                     "paidAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "paidLate": {
                       "type": "boolean"
                     },
                     "paymentLinkId": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "createdAt": {
                       "type": "string",
@@ -6448,8 +6389,7 @@
                     "paidLate",
                     "paymentLinkId",
                     "createdAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -6527,7 +6467,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -6574,15 +6515,13 @@
                           "displayName",
                           "role",
                           "joinedAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     }
                   },
                   "required": [
                     "data"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -6660,7 +6599,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -6669,7 +6609,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -6748,7 +6689,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -6757,7 +6699,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -6781,8 +6724,7 @@
                 },
                 "required": [
                   "role"
-                ],
-                "additionalProperties": false
+                ]
               }
             }
           }
@@ -6864,7 +6806,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -6881,6 +6824,8 @@
                     "maxLength": 254
                   },
                   "kinds": {
+                    "minItems": 1,
+                    "maxItems": 5,
                     "type": "array",
                     "items": {
                       "type": "string",
@@ -6891,9 +6836,7 @@
                         "security",
                         "webhooks"
                       ]
-                    },
-                    "minItems": 1,
-                    "maxItems": 5
+                    }
                   }
                 },
                 "required": [
@@ -6926,8 +6869,7 @@
                   "required": [
                     "id",
                     "status"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -7005,7 +6947,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -7014,7 +6957,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -7095,7 +7039,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -7141,8 +7086,7 @@
                           "enabled",
                           "isDefault",
                           "applicable"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     },
                     "forwards": {
@@ -7170,9 +7114,9 @@
                             ]
                           },
                           "verifiedAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "createdAt": {
                             "type": "string",
@@ -7186,16 +7130,14 @@
                           "status",
                           "verifiedAt",
                           "createdAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     }
                   },
                   "required": [
                     "preferences",
                     "forwards"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -7273,7 +7215,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -7336,8 +7279,7 @@
                   "required": [
                     "kind",
                     "enabled"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -7415,7 +7357,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -7442,8 +7385,8 @@
                             "type": "string"
                           },
                           "description": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "amount": {
                             "type": "object",
@@ -7462,8 +7405,7 @@
                               "asset",
                               "amount",
                               "baseUnits"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "invoiceTtlMinutes": {
                             "type": "number"
@@ -7493,15 +7435,13 @@
                           "active",
                           "url",
                           "createdAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     }
                   },
                   "required": [
                     "data"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -7577,7 +7517,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -7665,8 +7606,8 @@
                       "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "amount": {
                       "type": "object",
@@ -7685,8 +7626,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "invoiceTtlMinutes": {
                       "type": "number"
@@ -7716,8 +7656,7 @@
                     "active",
                     "url",
                     "createdAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -7795,7 +7734,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -7804,7 +7744,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -7838,8 +7779,8 @@
                       "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "amount": {
                       "type": "object",
@@ -7858,8 +7799,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "invoiceTtlMinutes": {
                       "type": "number"
@@ -7889,8 +7829,7 @@
                     "active",
                     "url",
                     "createdAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -7968,7 +7907,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -7977,7 +7917,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -8011,8 +7952,8 @@
                       "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "amount": {
                       "type": "object",
@@ -8031,8 +7972,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "invoiceTtlMinutes": {
                       "type": "number"
@@ -8062,8 +8002,7 @@
                     "active",
                     "url",
                     "createdAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -8144,7 +8083,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -8152,10 +8092,10 @@
             "in": "query",
             "required": false,
             "schema": {
+              "default": 50,
               "type": "integer",
               "minimum": 1,
-              "maximum": 200,
-              "default": 50
+              "maximum": 200
             }
           },
           {
@@ -8218,8 +8158,7 @@
                               "asset",
                               "amount",
                               "baseUnits"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "countsTowardInvoice": {
                             "type": "boolean"
@@ -8232,14 +8171,14 @@
                             "format": "date-time"
                           },
                           "confirmedAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "reversedAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           }
                         },
                         "required": [
@@ -8254,20 +8193,18 @@
                           "detectedAt",
                           "confirmedAt",
                           "reversedAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     },
                     "nextCursor": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     }
                   },
                   "required": [
                     "data",
                     "nextCursor"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -8348,7 +8285,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -8389,12 +8327,12 @@
                             "type": "string"
                           },
                           "accountXpub": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "xrplAddress": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "status": {
                             "type": "string",
@@ -8407,9 +8345,9 @@
                             "type": "boolean"
                           },
                           "confirmedAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "nextIndex": {
                             "type": "string"
@@ -8419,9 +8357,9 @@
                             "format": "date-time"
                           },
                           "archivedAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           }
                         },
                         "required": [
@@ -8437,15 +8375,13 @@
                           "nextIndex",
                           "createdAt",
                           "archivedAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     }
                   },
                   "required": [
                     "data"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -8521,7 +8457,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -8614,12 +8551,12 @@
                           "type": "string"
                         },
                         "accountXpub": {
-                          "type": "string",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "string"
                         },
                         "xrplAddress": {
-                          "type": "string",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "string"
                         },
                         "status": {
                           "type": "string",
@@ -8632,9 +8569,9 @@
                           "type": "boolean"
                         },
                         "confirmedAt": {
+                          "nullable": true,
                           "type": "string",
-                          "format": "date-time",
-                          "nullable": true
+                          "format": "date-time"
                         },
                         "nextIndex": {
                           "type": "string"
@@ -8644,9 +8581,9 @@
                           "format": "date-time"
                         },
                         "archivedAt": {
+                          "nullable": true,
                           "type": "string",
-                          "format": "date-time",
-                          "nullable": true
+                          "format": "date-time"
                         }
                       },
                       "required": [
@@ -8662,8 +8599,7 @@
                         "nextIndex",
                         "createdAt",
                         "archivedAt"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "firstAddress": {
                       "type": "object",
@@ -8672,15 +8608,14 @@
                           "type": "string"
                         },
                         "destinationTag": {
-                          "type": "number",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "number"
                         }
                       },
                       "required": [
                         "address",
                         "destinationTag"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "next": {
                       "type": "string"
@@ -8690,8 +8625,7 @@
                     "wallet",
                     "firstAddress",
                     "next"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -8772,7 +8706,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -8781,7 +8716,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -8817,12 +8753,12 @@
                       "type": "string"
                     },
                     "accountXpub": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "xrplAddress": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "status": {
                       "type": "string",
@@ -8835,9 +8771,9 @@
                       "type": "boolean"
                     },
                     "confirmedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "nextIndex": {
                       "type": "string"
@@ -8847,9 +8783,9 @@
                       "format": "date-time"
                     },
                     "archivedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -8865,8 +8801,7 @@
                     "nextIndex",
                     "createdAt",
                     "archivedAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -8947,7 +8882,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -8956,7 +8892,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -8964,10 +8901,10 @@
             "in": "query",
             "required": false,
             "schema": {
+              "default": 50,
               "type": "integer",
               "minimum": 1,
-              "maximum": 200,
-              "default": 50
+              "maximum": 200
             }
           },
           {
@@ -9013,20 +8950,20 @@
                             "type": "string"
                           },
                           "derivationIndex": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "destinationTag": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "referenceType": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "referenceId": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "createdAt": {
                             "type": "string",
@@ -9043,20 +8980,18 @@
                           "referenceType",
                           "referenceId",
                           "createdAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     },
                     "nextCursor": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     }
                   },
                   "required": [
                     "data",
                     "nextCursor"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -9134,7 +9069,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -9143,7 +9079,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -9191,12 +9128,12 @@
                       "type": "string"
                     },
                     "accountXpub": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "xrplAddress": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "status": {
                       "type": "string",
@@ -9209,9 +9146,9 @@
                       "type": "boolean"
                     },
                     "confirmedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "nextIndex": {
                       "type": "string"
@@ -9221,9 +9158,9 @@
                       "format": "date-time"
                     },
                     "archivedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -9239,8 +9176,7 @@
                     "nextIndex",
                     "createdAt",
                     "archivedAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -9318,7 +9254,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -9327,7 +9264,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -9396,12 +9334,12 @@
                       "type": "string"
                     },
                     "accountXpub": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "xrplAddress": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "status": {
                       "type": "string",
@@ -9414,9 +9352,9 @@
                       "type": "boolean"
                     },
                     "confirmedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "nextIndex": {
                       "type": "string"
@@ -9426,9 +9364,9 @@
                       "format": "date-time"
                     },
                     "archivedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -9444,8 +9382,7 @@
                     "nextIndex",
                     "createdAt",
                     "archivedAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -9526,7 +9463,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -9535,7 +9473,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -9565,8 +9504,7 @@
                   },
                   "required": [
                     "queued"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -9647,7 +9585,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -9671,8 +9610,8 @@
                             "type": "string"
                           },
                           "description": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "eventTypes": {
                             "type": "array",
@@ -9688,16 +9627,16 @@
                             ]
                           },
                           "disabledReason": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "consecutiveFailures": {
                             "type": "number"
                           },
                           "rotationGraceEndsAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "createdAt": {
                             "type": "string",
@@ -9714,8 +9653,7 @@
                           "consecutiveFailures",
                           "rotationGraceEndsAt",
                           "createdAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     },
                     "eventTypes": {
@@ -9728,8 +9666,7 @@
                   "required": [
                     "data",
                     "eventTypes"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -9808,7 +9745,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -9841,16 +9779,16 @@
                     "maxLength": 200
                   },
                   "eventTypes": {
+                    "default": [
+                      "*"
+                    ],
+                    "minItems": 1,
+                    "maxItems": 40,
                     "type": "array",
                     "items": {
                       "type": "string",
                       "maxLength": 60
-                    },
-                    "minItems": 1,
-                    "maxItems": 40,
-                    "default": [
-                      "*"
-                    ]
+                    }
                   }
                 },
                 "required": [
@@ -9879,8 +9817,8 @@
                           "type": "string"
                         },
                         "description": {
-                          "type": "string",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "string"
                         },
                         "eventTypes": {
                           "type": "array",
@@ -9896,16 +9834,16 @@
                           ]
                         },
                         "disabledReason": {
-                          "type": "string",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "string"
                         },
                         "consecutiveFailures": {
                           "type": "number"
                         },
                         "rotationGraceEndsAt": {
+                          "nullable": true,
                           "type": "string",
-                          "format": "date-time",
-                          "nullable": true
+                          "format": "date-time"
                         },
                         "createdAt": {
                           "type": "string",
@@ -9922,8 +9860,7 @@
                         "consecutiveFailures",
                         "rotationGraceEndsAt",
                         "createdAt"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "secret": {
                       "type": "string"
@@ -9936,8 +9873,7 @@
                     "endpoint",
                     "secret",
                     "warning"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -10018,7 +9954,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -10027,7 +9964,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -10046,8 +9984,8 @@
                       "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "eventTypes": {
                       "type": "array",
@@ -10063,16 +10001,16 @@
                       ]
                     },
                     "disabledReason": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "consecutiveFailures": {
                       "type": "number"
                     },
                     "rotationGraceEndsAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "createdAt": {
                       "type": "string",
@@ -10089,8 +10027,7 @@
                     "consecutiveFailures",
                     "rotationGraceEndsAt",
                     "createdAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -10169,7 +10106,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -10178,7 +10116,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -10195,18 +10134,18 @@
                     "maxLength": 2000
                   },
                   "description": {
+                    "nullable": true,
                     "type": "string",
-                    "maxLength": 200,
-                    "nullable": true
+                    "maxLength": 200
                   },
                   "eventTypes": {
+                    "minItems": 1,
+                    "maxItems": 40,
                     "type": "array",
                     "items": {
                       "type": "string",
                       "maxLength": 60
-                    },
-                    "minItems": 1,
-                    "maxItems": 40
+                    }
                   },
                   "status": {
                     "type": "string",
@@ -10236,8 +10175,8 @@
                       "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "eventTypes": {
                       "type": "array",
@@ -10253,16 +10192,16 @@
                       ]
                     },
                     "disabledReason": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "consecutiveFailures": {
                       "type": "number"
                     },
                     "rotationGraceEndsAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "createdAt": {
                       "type": "string",
@@ -10279,8 +10218,7 @@
                     "consecutiveFailures",
                     "rotationGraceEndsAt",
                     "createdAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -10361,7 +10299,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -10370,7 +10309,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -10378,10 +10318,10 @@
             "in": "query",
             "required": false,
             "schema": {
+              "default": 50,
               "type": "integer",
               "minimum": 1,
-              "maximum": 200,
-              "default": 50
+              "maximum": 200
             }
           },
           {
@@ -10445,22 +10385,22 @@
                             "format": "date-time"
                           },
                           "lastAttemptAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "lastStatusCode": {
-                            "type": "number",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "number"
                           },
                           "lastError": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "deliveredAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "createdAt": {
                             "type": "string",
@@ -10479,20 +10419,18 @@
                           "lastError",
                           "deliveredAt",
                           "createdAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     },
                     "nextCursor": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     }
                   },
                   "required": [
                     "data",
                     "nextCursor"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -10573,7 +10511,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -10582,7 +10521,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -10616,8 +10556,8 @@
                           "type": "string"
                         },
                         "description": {
-                          "type": "string",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "string"
                         },
                         "eventTypes": {
                           "type": "array",
@@ -10633,16 +10573,16 @@
                           ]
                         },
                         "disabledReason": {
-                          "type": "string",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "string"
                         },
                         "consecutiveFailures": {
                           "type": "number"
                         },
                         "rotationGraceEndsAt": {
+                          "nullable": true,
                           "type": "string",
-                          "format": "date-time",
-                          "nullable": true
+                          "format": "date-time"
                         },
                         "createdAt": {
                           "type": "string",
@@ -10659,8 +10599,7 @@
                         "consecutiveFailures",
                         "rotationGraceEndsAt",
                         "createdAt"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "secret": {
                       "type": "string"
@@ -10673,8 +10612,7 @@
                     "endpoint",
                     "secret",
                     "warning"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -10755,7 +10693,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -10764,7 +10703,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -10782,8 +10722,7 @@
                   },
                   "required": [
                     "eventId"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -10864,7 +10803,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -10912,9 +10852,9 @@
                             "type": "boolean"
                           },
                           "revokedAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           }
                         },
                         "required": [
@@ -10926,8 +10866,7 @@
                           "activeAt",
                           "usable",
                           "revokedAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     },
                     "assets": {
@@ -10940,8 +10879,7 @@
                   "required": [
                     "data",
                     "assets"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -11017,7 +10955,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -11110,9 +11049,9 @@
                       "type": "boolean"
                     },
                     "revokedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -11124,8 +11063,7 @@
                     "activeAt",
                     "usable",
                     "revokedAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -11203,7 +11141,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -11212,7 +11151,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -11267,9 +11207,9 @@
                       "type": "boolean"
                     },
                     "revokedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -11281,8 +11221,7 @@
                     "activeAt",
                     "usable",
                     "revokedAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -11363,7 +11302,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -11406,8 +11346,7 @@
                               "asset",
                               "amount",
                               "baseUnits"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "maxPerWithdrawal": {
                             "type": "object",
@@ -11426,8 +11365,7 @@
                               "asset",
                               "amount",
                               "baseUnits"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "maxPerDay": {
                             "type": "object",
@@ -11446,8 +11384,7 @@
                               "asset",
                               "amount",
                               "baseUnits"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "effectiveAt": {
                             "type": "string",
@@ -11471,15 +11408,13 @@
                           "effectiveAt",
                           "inEffect",
                           "createdAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     }
                   },
                   "required": [
                     "data"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -11557,7 +11492,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -11649,8 +11585,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "maxPerWithdrawal": {
                       "type": "object",
@@ -11669,8 +11604,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "maxPerDay": {
                       "type": "object",
@@ -11689,8 +11623,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "effectiveAt": {
                       "type": "string",
@@ -11714,8 +11647,7 @@
                     "effectiveAt",
                     "inEffect",
                     "createdAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -11796,7 +11728,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -11804,10 +11737,10 @@
             "in": "query",
             "required": false,
             "schema": {
+              "default": 50,
               "type": "integer",
               "minimum": 1,
-              "maximum": 200,
-              "default": 50
+              "maximum": 200
             }
           },
           {
@@ -11888,8 +11821,7 @@
                               "asset",
                               "amount",
                               "baseUnits"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "feeCharged": {
                             "type": "object",
@@ -11908,8 +11840,7 @@
                               "asset",
                               "amount",
                               "baseUnits"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "destination": {
                             "type": "object",
@@ -11924,16 +11855,15 @@
                             "required": [
                               "id",
                               "address"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "clientRef": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "description": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "requestedBy": {
                             "type": "object",
@@ -11952,31 +11882,31 @@
                             "required": [
                               "type",
                               "id"
-                            ],
-                            "additionalProperties": false
+                            ]
                           },
                           "approvedBy": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "approvedAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "approvalExpiresAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           },
                           "txid": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "confirmations": {
                             "type": "string"
                           },
                           "networkFee": {
+                            "nullable": true,
                             "type": "object",
                             "properties": {
                               "asset": {
@@ -11993,26 +11923,24 @@
                               "asset",
                               "amount",
                               "baseUnits"
-                            ],
-                            "additionalProperties": false,
-                            "nullable": true
+                            ]
                           },
                           "decisionReason": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "lastError": {
-                            "type": "string",
-                            "nullable": true
+                            "nullable": true,
+                            "type": "string"
                           },
                           "createdAt": {
                             "type": "string",
                             "format": "date-time"
                           },
                           "confirmedAt": {
+                            "nullable": true,
                             "type": "string",
-                            "format": "date-time",
-                            "nullable": true
+                            "format": "date-time"
                           }
                         },
                         "required": [
@@ -12034,20 +11962,18 @@
                           "lastError",
                           "createdAt",
                           "confirmedAt"
-                        ],
-                        "additionalProperties": false
+                        ]
                       }
                     },
                     "nextCursor": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     }
                   },
                   "required": [
                     "data",
                     "nextCursor"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -12126,7 +12052,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -12168,7 +12095,8 @@
                   },
                   "destinationId": {
                     "type": "string",
-                    "format": "uuid"
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   },
                   "clientRef": {
                     "type": "string",
@@ -12233,8 +12161,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "feeCharged": {
                       "type": "object",
@@ -12253,8 +12180,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "destination": {
                       "type": "object",
@@ -12269,16 +12195,15 @@
                       "required": [
                         "id",
                         "address"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "clientRef": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "requestedBy": {
                       "type": "object",
@@ -12297,31 +12222,31 @@
                       "required": [
                         "type",
                         "id"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "approvedBy": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "approvedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "approvalExpiresAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "txid": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "confirmations": {
                       "type": "string"
                     },
                     "networkFee": {
+                      "nullable": true,
                       "type": "object",
                       "properties": {
                         "asset": {
@@ -12338,26 +12263,24 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false,
-                      "nullable": true
+                      ]
                     },
                     "decisionReason": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "lastError": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time"
                     },
                     "confirmedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -12379,8 +12302,7 @@
                     "lastError",
                     "createdAt",
                     "confirmedAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -12461,7 +12383,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -12470,7 +12393,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           }
         ],
@@ -12517,8 +12441,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "feeCharged": {
                       "type": "object",
@@ -12537,8 +12460,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "destination": {
                       "type": "object",
@@ -12553,16 +12475,15 @@
                       "required": [
                         "id",
                         "address"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "clientRef": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "requestedBy": {
                       "type": "object",
@@ -12581,31 +12502,31 @@
                       "required": [
                         "type",
                         "id"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "approvedBy": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "approvedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "approvalExpiresAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "txid": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "confirmations": {
                       "type": "string"
                     },
                     "networkFee": {
+                      "nullable": true,
                       "type": "object",
                       "properties": {
                         "asset": {
@@ -12622,26 +12543,24 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false,
-                      "nullable": true
+                      ]
                     },
                     "decisionReason": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "lastError": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time"
                     },
                     "confirmedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -12663,8 +12582,7 @@
                     "lastError",
                     "createdAt",
                     "confirmedAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -12742,7 +12660,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -12751,7 +12670,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -12810,8 +12730,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "feeCharged": {
                       "type": "object",
@@ -12830,8 +12749,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "destination": {
                       "type": "object",
@@ -12846,16 +12764,15 @@
                       "required": [
                         "id",
                         "address"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "clientRef": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "requestedBy": {
                       "type": "object",
@@ -12874,31 +12791,31 @@
                       "required": [
                         "type",
                         "id"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "approvedBy": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "approvedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "approvalExpiresAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "txid": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "confirmations": {
                       "type": "string"
                     },
                     "networkFee": {
+                      "nullable": true,
                       "type": "object",
                       "properties": {
                         "asset": {
@@ -12915,26 +12832,24 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false,
-                      "nullable": true
+                      ]
                     },
                     "decisionReason": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "lastError": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time"
                     },
                     "confirmedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -12956,8 +12871,7 @@
                     "lastError",
                     "createdAt",
                     "confirmedAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -13035,7 +12949,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -13044,7 +12959,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -13120,8 +13036,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "feeCharged": {
                       "type": "object",
@@ -13140,8 +13055,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "destination": {
                       "type": "object",
@@ -13156,16 +13070,15 @@
                       "required": [
                         "id",
                         "address"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "clientRef": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "requestedBy": {
                       "type": "object",
@@ -13184,31 +13097,31 @@
                       "required": [
                         "type",
                         "id"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "approvedBy": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "approvedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "approvalExpiresAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "txid": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "confirmations": {
                       "type": "string"
                     },
                     "networkFee": {
+                      "nullable": true,
                       "type": "object",
                       "properties": {
                         "asset": {
@@ -13225,26 +13138,24 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false,
-                      "nullable": true
+                      ]
                     },
                     "decisionReason": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "lastError": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time"
                     },
                     "confirmedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -13266,8 +13177,7 @@
                     "lastError",
                     "createdAt",
                     "confirmedAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -13345,7 +13255,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -13354,7 +13265,8 @@
             "required": true,
             "schema": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
             }
           },
           {
@@ -13430,8 +13342,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "feeCharged": {
                       "type": "object",
@@ -13450,8 +13361,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "destination": {
                       "type": "object",
@@ -13466,16 +13376,15 @@
                       "required": [
                         "id",
                         "address"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "clientRef": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "requestedBy": {
                       "type": "object",
@@ -13494,31 +13403,31 @@
                       "required": [
                         "type",
                         "id"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "approvedBy": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "approvedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "approvalExpiresAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     },
                     "txid": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "confirmations": {
                       "type": "string"
                     },
                     "networkFee": {
+                      "nullable": true,
                       "type": "object",
                       "properties": {
                         "asset": {
@@ -13535,26 +13444,24 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false,
-                      "nullable": true
+                      ]
                     },
                     "decisionReason": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "lastError": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "createdAt": {
                       "type": "string",
                       "format": "date-time"
                     },
                     "confirmedAt": {
+                      "nullable": true,
                       "type": "string",
-                      "format": "date-time",
-                      "nullable": true
+                      "format": "date-time"
                     }
                   },
                   "required": [
@@ -13576,8 +13483,7 @@
                     "lastError",
                     "createdAt",
                     "confirmedAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -13681,8 +13587,8 @@
                       ]
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "amountDue": {
                       "type": "object",
@@ -13701,8 +13607,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "amountConfirmed": {
                       "type": "object",
@@ -13721,8 +13626,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "amountPending": {
                       "type": "object",
@@ -13741,8 +13645,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "deposit": {
                       "type": "object",
@@ -13757,12 +13660,12 @@
                           "type": "string"
                         },
                         "destinationTag": {
-                          "type": "number",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "number"
                         },
                         "paymentUri": {
-                          "type": "string",
-                          "nullable": true
+                          "nullable": true,
+                          "type": "string"
                         }
                       },
                       "required": [
@@ -13771,8 +13674,7 @@
                         "address",
                         "destinationTag",
                         "paymentUri"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
                     "expiresAt": {
                       "type": "string",
@@ -13789,8 +13691,7 @@
                     "amountPending",
                     "deposit",
                     "expiresAt"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -13853,8 +13754,8 @@
                       "type": "string"
                     },
                     "description": {
-                      "type": "string",
-                      "nullable": true
+                      "nullable": true,
+                      "type": "string"
                     },
                     "amount": {
                       "type": "object",
@@ -13873,8 +13774,7 @@
                         "asset",
                         "amount",
                         "baseUnits"
-                      ],
-                      "additionalProperties": false
+                      ]
                     }
                   },
                   "required": [
@@ -13882,8 +13782,7 @@
                     "title",
                     "description",
                     "amount"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }
@@ -13950,8 +13849,7 @@
                   "required": [
                     "publicId",
                     "hostedUrl"
-                  ],
-                  "additionalProperties": false
+                  ]
                 }
               }
             }

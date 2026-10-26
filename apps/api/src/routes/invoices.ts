@@ -83,7 +83,7 @@ const invoiceSchema = z.object({
   status: invoiceStatusSchema,
   externalId: z.string().nullable(),
   description: z.string().nullable(),
-  metadata: z.record(z.unknown()),
+  metadata: z.record(z.string(), z.unknown()),
   amountDue: money,
   amountConfirmed: money,
   amountPending: money,
@@ -218,7 +218,7 @@ export function registerInvoiceRoutes(app: FastifyInstance, ctx: ApiContext): vo
         walletId: uuid.optional(),
         externalId: z.string().trim().min(1).max(200).optional(),
         description: z.string().trim().max(2000).optional(),
-        metadata: z.record(z.unknown()).optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
         expiresInMinutes: z.number().int().optional(),
       })
       .strict(),

@@ -2,7 +2,7 @@
 import { z } from 'zod';
 import { API_KEY_SCOPES, ORG_ROLES } from '@actualpay/auth';
 
-export const uuid = z.string().uuid();
+export const uuid = z.uuid();
 export const orgParams = z.object({ orgId: uuid });
 export const emailInput = z.string().trim().min(3).max(254);
 export const passwordInput = z.string().min(1).max(1024); // policy enforced by the service

@@ -1,7 +1,8 @@
 # Security Policy
 
-> **Status:** ActualPay is pre-release (Phase 3 of 13). It does not yet
-> process payments and must not be used with real funds.
+> **Status:** ActualPay is pre-release (Phase 12 of 13). It has not had an
+> independent security review and must not be used with real funds. See
+> `docs/threat-model.md` for what it defends and what it does not.
 
 ## Reporting a vulnerability
 
@@ -19,7 +20,7 @@ No version is supported for production use yet.
 ## Security model (summary)
 
 See `docs/architecture.md` for the custody model and the correctness
-mechanisms, and `docs/security-model.md` for authentication and access control. A complete threat model is delivered in Phase 12.
+mechanisms, and `docs/security-model.md` for authentication and access control. The threat model is `docs/threat-model.md`.
 
 Key principles already enforced in code:
 

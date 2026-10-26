@@ -38,7 +38,7 @@ const booleanString = z
   .transform((value) => value === 'true' || value === '1');
 
 const urlWithProtocols = (protocols: readonly string[]) =>
-  nonEmpty.url().refine((value) => protocols.includes(new URL(value).protocol), {
+  nonEmpty.pipe(z.url()).refine((value) => protocols.includes(new URL(value).protocol), {
     message: `must use one of: ${protocols.join(', ')}`,
   });
 
@@ -54,7 +54,7 @@ const enabledAssets = z
     for (const id of unique) {
       if (!(ASSET_IDS as readonly string[]).includes(id)) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: `unknown asset "${id}"; valid: ${ASSET_IDS.join(', ')}`,
         });
         return z.NEVER;
@@ -71,7 +71,7 @@ export const rawConfigSchema = z.object({
 
   DATABASE_URL: urlWithProtocols(['postgres:', 'postgresql:']),
   DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(200).default(10),
-  DATABASE_SSL: booleanString.default('false'),
+  DATABASE_SSL: booleanString.default(false),
 
   // Optional outside production. Without it, rate limits are counted in each
   // API process's own memory (see docs/security-model.md).
@@ -119,11 +119,11 @@ export const rawConfigSchema = z.object({
   SMTP_PORT: z.coerce.number().int().min(1).max(65535).optional(),
   SMTP_USERNAME: nonEmpty.optional(),
   SMTP_PASSWORD: nonEmpty.optional(),
-  SMTP_FROM: nonEmpty.email().optional(),
+  SMTP_FROM: nonEmpty.pipe(z.email()).optional(),
   // Receives critical operational alerts (money-related issues). Strongly recommended.
-  OPERATOR_ALERT_EMAIL: nonEmpty.email().optional(),
+  OPERATOR_ALERT_EMAIL: nonEmpty.pipe(z.email()).optional(),
 
-  TRUST_PROXY: booleanString.default('false'),
+  TRUST_PROXY: booleanString.default(false),
 
   API_HOST: nonEmpty.default('127.0.0.1'),
   API_PORT: z.coerce.number().int().min(1).max(65535).default(3000),
@@ -142,12 +142,12 @@ export const rawConfigSchema = z.object({
         try {
           parsed = new URL(origin);
         } catch {
-          ctx.addIssue({ code: z.ZodIssueCode.custom, message: `invalid origin "${origin}"` });
+          ctx.addIssue({ code: 'custom', message: `invalid origin "${origin}"` });
           return z.NEVER;
         }
         if (parsed.origin !== origin) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             message: `"${origin}" must be a bare origin like https://shop.example`,
           });
           return z.NEVER;
@@ -171,8 +171,8 @@ export const rawConfigSchema = z.object({
    * destinations (e.g. a local receiver). Refused in production because they
    * turn webhooks into a way to reach internal services.
    */
-  WEBHOOK_ALLOW_HTTP: booleanString.default('false'),
-  WEBHOOK_ALLOW_PRIVATE_NETWORKS: booleanString.default('false'),
+  WEBHOOK_ALLOW_HTTP: booleanString.default(false),
+  WEBHOOK_ALLOW_PRIVATE_NETWORKS: booleanString.default(false),
 
   /**
    * Who holds customers' money.
@@ -218,7 +218,7 @@ const CONTRACT_OVERRIDE_KEYS: Partial<Record<AssetId, keyof RawConfig>> = {
 export function crossFieldRules(config: RawConfig, ctx: z.RefinementCtx): void {
   if (config.ENABLED_ASSETS.length === 0) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       path: ['ENABLED_ASSETS'],
       message: 'enable at least one asset',
     });
@@ -229,7 +229,7 @@ export function crossFieldRules(config: RawConfig, ctx: z.RefinementCtx): void {
     for (const key of CHAIN_REQUIREMENTS[chain]) {
       if (config[key] === undefined) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: [key],
           message: `required because a ${chain} asset is enabled`,
         });
@@ -243,7 +243,7 @@ export function crossFieldRules(config: RawConfig, ctx: z.RefinementCtx): void {
     // enabled too, or fee accounting and gas top-ups have nowhere to live.
     if (!config.ENABLED_ASSETS.includes(asset.feeAssetId)) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: ['ENABLED_ASSETS'],
         message: `${id} requires its fee asset ${asset.feeAssetId} to be enabled`,
       });
@@ -254,7 +254,7 @@ export function crossFieldRules(config: RawConfig, ctx: z.RefinementCtx): void {
       const override = config[overrideKey];
       if (builtIn === null && override === undefined) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: [overrideKey],
           message: `required for ${id} on ${config.NETWORK_MODE} (no official contract)`,
         });
@@ -263,7 +263,7 @@ export function crossFieldRules(config: RawConfig, ctx: z.RefinementCtx): void {
         // Overriding a mainnet token contract would let a misconfiguration
         // credit worthless look-alike tokens as real USDT.
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: [overrideKey],
           message: `must not override the official ${id} contract on ${config.NETWORK_MODE}`,
         });
@@ -273,7 +273,7 @@ export function crossFieldRules(config: RawConfig, ctx: z.RefinementCtx): void {
 
   if (config.CUSTODY_MODE === 'platform' && config.WITHDRAWAL_SEAL_KEY === undefined) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       path: ['WITHDRAWAL_SEAL_KEY'],
       message: 'required when CUSTODY_MODE=platform (it seals approved withdrawals)',
     });
@@ -283,7 +283,7 @@ export function crossFieldRules(config: RawConfig, ctx: z.RefinementCtx): void {
   const smtpSet = smtpKeys.filter((key) => config[key] !== undefined);
   if (smtpSet.length > 0 && smtpSet.length < smtpKeys.length) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       path: ['SMTP_HOST'],
       message: 'SMTP_HOST, SMTP_PORT and SMTP_FROM must be set together (or not at all)',
     });
@@ -310,7 +310,7 @@ export function productionRules(config: RawConfig, ctx: z.RefinementCtx): void {
     ] as const) {
       if (config[key] < 1) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: [key],
           message: 'must be at least 1 hour in production when the platform holds funds',
         });
@@ -321,7 +321,7 @@ export function productionRules(config: RawConfig, ctx: z.RefinementCtx): void {
   for (const key of ['WEBHOOK_ALLOW_HTTP', 'WEBHOOK_ALLOW_PRIVATE_NETWORKS'] as const) {
     if (config[key]) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: [key],
         message: 'must be false in production (it exposes internal services to webhook URLs)',
       });
@@ -330,7 +330,7 @@ export function productionRules(config: RawConfig, ctx: z.RefinementCtx): void {
 
   if (!config.REDIS_URL) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       path: ['REDIS_URL'],
       message:
         'production requires Redis/Valkey: without it, rate limits are per process and reset on restart',
@@ -339,21 +339,21 @@ export function productionRules(config: RawConfig, ctx: z.RefinementCtx): void {
 
   if (new URL(config.PUBLIC_BASE_URL).protocol !== 'https:') {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       path: ['PUBLIC_BASE_URL'],
       message: 'must use https in production',
     });
   }
   if (config.NETWORK_MODE !== 'mainnet') {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       path: ['NETWORK_MODE'],
       message: 'production must use mainnet; use APP_ENV=staging for testnet deployments',
     });
   }
   if (config.SMTP_HOST === undefined) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       path: ['SMTP_HOST'],
       message: 'production requires SMTP: account verification and password reset depend on email',
     });
@@ -361,7 +361,7 @@ export function productionRules(config: RawConfig, ctx: z.RefinementCtx): void {
   for (const origin of config.CORS_ALLOWED_ORIGINS) {
     if (!origin.startsWith('https://')) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: ['CORS_ALLOWED_ORIGINS'],
         message: `${origin} must use https in production`,
       });
@@ -369,14 +369,14 @@ export function productionRules(config: RawConfig, ctx: z.RefinementCtx): void {
   }
   if (config.ETHEREUM_CHAIN_ID !== undefined && config.ETHEREUM_CHAIN_ID !== 1) {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       path: ['ETHEREUM_CHAIN_ID'],
       message: 'production must use Ethereum mainnet (chain id 1)',
     });
   }
   if (config.LOG_LEVEL === 'trace' || config.LOG_LEVEL === 'debug') {
     ctx.addIssue({
-      code: z.ZodIssueCode.custom,
+      code: 'custom',
       path: ['LOG_LEVEL'],
       message: 'debug/trace logging is not allowed in production',
     });
@@ -385,7 +385,7 @@ export function productionRules(config: RawConfig, ctx: z.RefinementCtx): void {
     const value = config[key];
     if (value !== undefined && PLACEHOLDER_PATTERN.test(value)) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: [key],
         message: 'looks like a placeholder value',
       });

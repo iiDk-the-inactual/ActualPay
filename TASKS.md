@@ -617,6 +617,26 @@ Read `docs/api.md`. Phase 11 adds `apps/api/src/openapi.ts`, `GET /v1/openapi.js
 
 ---
 
+## Phase 12: Security hardening
+
+Read `docs/threat-model.md`. Phase 12 adds the registry-driven security suite,
+the `platformAdmin` route gate, server timeouts, the zod 4 upgrade (clears the
+high audit finding) and dependency fixes. No migration.
+
+- [ ] `npm audit --omit=dev --audit-level=high` reports nothing.
+- [ ] `npm run verify` passes with **224 unit tests** and **287 integration tests**.
+- [ ] Add a deliberately broken route (no auth) locally and confirm
+      `tests/integration/security.test.ts` fails; remove it.
+- [ ] Read `docs/threat-model.md` "Before real funds" and decide each item.
+- [ ] Optional: run an external scanner (OWASP ZAP baseline) against a local instance.
+
+### Phase 12 known limitations (do not "fix" without asking)
+
+- Not independently audited. Seal key lives with the API host; software keystore.
+- No WebAuthn; TOTP only. No per-tenant resource quotas.
+
+---
+
 ## Findings log
 
 Record every failure, its root cause, and the fix (file and line), so the

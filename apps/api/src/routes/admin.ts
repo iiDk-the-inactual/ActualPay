@@ -55,6 +55,7 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: ApiContext): void
     summary: 'Register a platform-held wallet for an organization (custodial mode)',
     tags,
     auth: 'session',
+    platformAdmin: true,
     requireMfa: true,
     params: orgOnly,
     body: z
@@ -112,6 +113,7 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: ApiContext): void
     summary: 'Confirm a platform-held wallet against the operator wallet software',
     tags,
     auth: 'session',
+    platformAdmin: true,
     requireMfa: true,
     params: walletOnly,
     body: z.object({ address: z.string().trim().min(20).max(100) }).strict(),
@@ -141,6 +143,7 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: ApiContext): void
     summary: 'Archive a platform-held wallet',
     tags,
     auth: 'session',
+    platformAdmin: true,
     requireMfa: true,
     params: walletOnly,
     response: walletSchema,
@@ -179,6 +182,7 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: ApiContext): void
     summary: 'List registered hot wallets',
     tags,
     auth: 'session',
+    platformAdmin: true,
     requireMfa: true,
     response: z.object({ data: z.array(hotWalletSchema) }),
     handler: async ({ principal }) => {
@@ -205,6 +209,7 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: ApiContext): void
       'Authorise the signer to pay from a hot wallet (use the address `signer:init` printed)',
     tags,
     auth: 'session',
+    platformAdmin: true,
     requireMfa: true,
     body: z
       .object({
@@ -247,6 +252,7 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: ApiContext): void
     summary: 'Stop the signer paying from a hot wallet',
     tags,
     auth: 'session',
+    platformAdmin: true,
     requireMfa: true,
     params: z.object({ hotWalletId: uuid }),
     response: hotWalletSchema,
@@ -277,6 +283,7 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: ApiContext): void
     summary: 'Emergency stop: no withdrawal can be requested, approved or signed',
     tags,
     auth: 'session',
+    platformAdmin: true,
     requireMfa: true,
     body: z.object({ reason: z.string().trim().min(3).max(500) }).strict(),
     response: z.object({ paused: z.boolean() }),
@@ -298,6 +305,7 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: ApiContext): void
     summary: 'Lift the withdrawal pause',
     tags,
     auth: 'session',
+    platformAdmin: true,
     requireMfa: true,
     response: z.object({ paused: z.boolean() }),
     successStatus: 200,
@@ -314,6 +322,7 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: ApiContext): void
     summary: 'Platform status: custody mode, pause switch, watcher cursors, open issues',
     tags,
     auth: 'session',
+    platformAdmin: true,
     requireMfa: true,
     response: z.object({
       custodyMode: z.string(),
@@ -363,6 +372,7 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: ApiContext): void
     summary: 'Record coins you added to the platform holdings (e.g. ETH for gas)',
     tags,
     auth: 'session',
+    platformAdmin: true,
     requireMfa: true,
     body: z
       .object({
@@ -416,6 +426,7 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: ApiContext): void
     summary: 'Reconciliation issues that need a human',
     tags,
     auth: 'session',
+    platformAdmin: true,
     requireMfa: true,
     query: z.object({ status: z.enum(['open', 'resolved']).default('open') }),
     response: z.object({ data: z.array(issueSchema) }),
@@ -446,6 +457,7 @@ export function registerAdminRoutes(app: FastifyInstance, ctx: ApiContext): void
     summary: 'Resolve an issue with a note (audited)',
     tags,
     auth: 'session',
+    platformAdmin: true,
     requireMfa: true,
     params: z.object({ issueId: uuid }),
     body: z.object({ note: z.string().trim().min(3).max(2000) }).strict(),

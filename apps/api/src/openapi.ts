@@ -5,19 +5,23 @@
  * only translates. So the spec cannot drift from what the server validates, and
  * a test fails if the committed `docs/openapi.json` is stale.
  */
-import { zodToJsonSchema } from 'zod-to-json-schema';
-import type { ZodType } from 'zod';
+import { z, type ZodType } from 'zod';
 import type { RegisteredRoute } from './http/route';
 
 type Json = Record<string, unknown>;
 
 function schemaOf(schema: ZodType): Json {
-  const out = zodToJsonSchema(schema, {
-    target: 'openApi3',
-    $refStrategy: 'none',
-    dateStrategy: 'format:date-time',
-    pipeStrategy: 'output',
-    effectStrategy: 'input',
+  const out = z.toJSONSchema(schema, {
+    target: 'openapi-3.0',
+    // Clients send (and handlers return) the INPUT side of transforms; dates serialise as ISO strings.
+    io: 'input',
+    unrepresentable: 'any',
+    override: (ctx) => {
+      if (ctx.zodSchema._zod.def.type === 'date') {
+        ctx.jsonSchema.type = 'string';
+        ctx.jsonSchema.format = 'date-time';
+      }
+    },
   }) as Json;
   delete out['$schema'];
   return out;
@@ -64,6 +68,7 @@ export function buildOpenApi(
   for (const r of sorted) {
     const path = r.url.replace(/:([A-Za-z]+)/g, '{$1}');
     const notes: string[] = [];
+    if (r.platformAdmin) notes.push('Platform administrators only.');
     if (r.requireMfa) notes.push('Requires a session that completed two-factor authentication.');
     if (typeof r.org === 'string') notes.push(`Requires the \`${r.org}\` permission.`);
     if (r.rateLimit === 'auth') notes.push('Strictly rate limited (authentication limit).');

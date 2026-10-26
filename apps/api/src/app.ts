@@ -52,6 +52,11 @@ export async function buildApp(
     loggerInstance: fastifyLogger,
     trustProxy: config.trustProxy,
     bodyLimit: 100 * 1024,
+    // Slow-client (slowloris) limits: a request must arrive within 30 s; idle sockets are
+    // closed shortly after a load balancer's usual 60 s idle timeout.
+    requestTimeout: 30_000,
+    connectionTimeout: 60_000,
+    keepAliveTimeout: 65_000,
     // Reject JSON bodies trying to set __proto__ / constructor.prototype.
     onProtoPoisoning: 'error',
     onConstructorPoisoning: 'error',

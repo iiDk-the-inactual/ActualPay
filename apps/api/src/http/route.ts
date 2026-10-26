@@ -16,7 +16,7 @@
  * Route metadata is also kept in a registry for OpenAPI generation (Phase 11).
  */
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { z, type ZodType, type ZodTypeDef } from 'zod';
+import { z, type ZodType } from 'zod';
 import { AppError, isAppError } from '@actualpay/shared';
 import {
   authenticateApiKey,
@@ -42,7 +42,7 @@ import { bearerToken, sessionCookieName, type Principal } from './principal';
 
 export type AuthMode = 'public' | 'session' | 'session_or_api_key';
 export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-type Schema<T> = ZodType<T, ZodTypeDef, unknown>;
+type Schema<T> = ZodType<T>;
 
 export interface RouteContext<B, Q, P> {
   readonly request: FastifyRequest;
@@ -69,13 +69,15 @@ export interface RouteDefinition<B, Q, P, R, RIn> {
   readonly org?: true | Permission;
   /** Require a session that completed two-factor authentication. */
   readonly requireMfa?: boolean;
+  /** Only platform administrators; checked before any input is read. */
+  readonly platformAdmin?: boolean;
   readonly rateLimit?: 'auth' | 'api';
   readonly idempotency?: 'optional' | 'required';
   readonly params?: Schema<P>;
   readonly query?: Schema<Q>;
   readonly body?: Schema<B>;
   /** Output schema. The handler returns its *input* type (e.g. Date); the schema serialises it. */
-  readonly response: ZodType<R, ZodTypeDef, RIn>;
+  readonly response: ZodType<R, RIn>;
   readonly successStatus?: number;
   readonly handler: (ctx: RouteContext<B, Q, P>) => Promise<RIn>;
 }
@@ -88,6 +90,7 @@ export interface RegisteredRoute {
   readonly auth: AuthMode;
   readonly org: true | Permission | undefined;
   readonly requireMfa: boolean;
+  readonly platformAdmin: boolean;
   readonly idempotency: 'optional' | 'required' | undefined;
   readonly rateLimit: 'auth' | 'api' | undefined;
   readonly schemas: { params?: ZodType; query?: ZodType; body?: ZodType; response: ZodType };
@@ -97,7 +100,7 @@ export interface RegisteredRoute {
 export const routeRegistry: RegisteredRoute[] = [];
 
 const UNSAFE_METHODS = new Set<HttpMethod>(['POST', 'PATCH', 'PUT', 'DELETE']);
-const orgParam = z.object({ orgId: z.string().uuid() }).passthrough();
+const orgParam = z.looseObject({ orgId: z.uuid() });
 
 function requestMeta(request: FastifyRequest): RequestMeta {
   const userAgent = request.headers['user-agent'];
@@ -223,6 +226,7 @@ export function defineRoute<B = undefined, Q = undefined, P = undefined, R = unk
     auth: def.auth,
     org: def.org,
     requireMfa: def.requireMfa === true,
+    platformAdmin: def.platformAdmin === true,
     idempotency: def.idempotency,
     rateLimit: def.rateLimit,
     schemas: {
@@ -282,6 +286,11 @@ export function defineRoute<B = undefined, Q = undefined, P = undefined, R = unk
             'This action requires two-factor authentication to be enabled and verified.',
           );
         }
+      }
+
+      if (def.platformAdmin === true) {
+        if (principal?.kind !== 'session' || !principal.session.isPlatformAdmin)
+          throw AppError.forbidden('This action is for platform administrators.');
       }
 
       let access: RouteContext<B, Q, P>['access'] = null;
