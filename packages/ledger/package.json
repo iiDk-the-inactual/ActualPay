@@ -10,6 +10,6 @@
   "dependencies": {
     "@actualpay/database": "0.1.0",
     "@actualpay/shared": "0.1.0",
-    "kysely": "^0.29.6"
+    "kysely": "^0.29.7"
   }
 }
