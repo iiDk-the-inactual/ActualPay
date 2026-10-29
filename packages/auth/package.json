@@ -13,7 +13,7 @@
     "@actualpay/email": "0.1.0",
     "@actualpay/shared": "0.1.0",
     "@node-rs/argon2": "^2.2.1",
-    "kysely": "^0.29.6",
+    "kysely": "^0.29.7",
     "otpauth": "^9.5.2"
   }
 }
